@@ -1,4 +1,4 @@
-# Password Shielded Transfer(PST) 
+# Payment Processing Protocol(PPP)
 
 # About
 
