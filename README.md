@@ -6,7 +6,7 @@ The ***Payment Processing Protocol(PPP)*** is a smart contract system designed t
 
 The goal is for users to pay with a credit card when buying digital assets and bypass the use of a crypto-wallet.
 
-As crypto-wallets need an above the average technical know-how for operation, this projects is intended to allow more individuals to aquire and use blockchain related products, increasing overall adoption.
+As crypto-wallets need an above the average technical know-how for operation(set-up, secure pass-phrase, funding, connecting), this project is intended to allow more individuals to aquire and use blockchain related products, increasing overall adoption.
 
 ## Contract Address
 
