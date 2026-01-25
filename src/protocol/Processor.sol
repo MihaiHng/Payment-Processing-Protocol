@@ -40,4 +40,23 @@ contract Processor is Processor_Storage, Ownable, ReentrancyGuard {
                         EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
     function fundProcessor() external {}
+
+    function withdrawFromProcessor(uint256 amount) external {}
+
+    function extractPaymentProcessingData()
+        external
+        returns (DataTypes.PaymentData memory paymentData)
+    {}
+
+    function processPayment(
+        uint256 paymentId,
+        address seller,
+        uint256 buyer,
+        address item,
+        uint256 price
+    ) external returns (bool) {}
+
+    /*//////////////////////////////////////////////////////////////
+                        INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 }

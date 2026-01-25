@@ -34,6 +34,16 @@ interface IProcessor {
     /** */
     function fundProcessor() external;
 
+    /** */
+    function withdrawFromProcessor(uint256 amount) external;
+
+    /**
+     *
+     */
+    function extractPaymentProcessingData()
+        external
+        returns (DataTypes.PaymentData memory paymentData);
+
     /**
      * @notice Handles the logic associated with the on-chain transactions, transfer price amount to seller, transfer item to buyer, confirmations
      * @param paymentId The Id of the payment
@@ -50,11 +60,4 @@ interface IProcessor {
         address item,
         uint256 price
     ) external returns (bool);
-
-    /**
-     *
-     */
-    function retrievePaymentData()
-        external
-        returns (DataTypes.PaymentData memory paymentData);
 }
