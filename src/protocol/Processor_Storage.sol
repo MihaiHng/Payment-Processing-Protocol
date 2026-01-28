@@ -30,6 +30,7 @@ contract Processor_Storage {
                                ERRORS
     //////////////////////////////////////////////////////////////*/
     error PPP__InvalidAddress();
+    error PPP__InvalidAmount();
 
     /*//////////////////////////////////////////////////////////////
                           STATE VARIABLES
