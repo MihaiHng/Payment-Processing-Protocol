@@ -24,22 +24,52 @@
 pragma solidity 0.8.33;
 
 import {Processor_Storage} from "./Processor_Storage.sol";
+import {FundProcessorLogic} from "../libraries/logic/FundProcessorLogic.sol";
 import {IProcessor} from "../interfaces/IProcessor.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
+
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+/**
+ * @title Payment Processor
+ * @author mhng
+ * @notice
+ */
 contract Processor is Processor_Storage, Ownable, ReentrancyGuard {
-    constructor() Ownable(msg.sender) {}
+    /*//////////////////////////////////////////////////////////////
+                          TYPE DECLARATIONS
+    //////////////////////////////////////////////////////////////*/
+    using SafeERC20 for IERC20;
 
-    receive() external payable {}
+    /*//////////////////////////////////////////////////////////////
+                            MODIFIERS
+    //////////////////////////////////////////////////////////////*/
+
+    constructor(address _usdc, uint256 _initialAmount) Ownable(msg.sender) {
+        if (_usdc == address(0)) {
+            revert PPP__InvalidAddress();
+        }
+        usdc = IERC20(_usdc);
+
+        if (_initialAmount > 0) {
+            // Reentrancy? CEI?
+            usdc.safeTransferFrom(msg.sender, address(this), _initialAmount);
+            deposits[msg.sender] += _initialAmount;
+            //emit Deposit(msg.sender, _initialAmount);
+        }
+    }
+
+    // receive() external payable {}
 
     /*//////////////////////////////////////////////////////////////
                         EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    function fundProcessor() external {}
+    function fundProcessor() external override {
+        FundProcessorLogic.executeFundProcessor();
+    }
 
     function withdrawFromProcessor(uint256 amount) external {}
 

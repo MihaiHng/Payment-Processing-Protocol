@@ -23,4 +23,19 @@
 
 pragma solidity 0.8.33;
 
-contract Processor_Storage {}
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+contract Processor_Storage {
+    /*//////////////////////////////////////////////////////////////
+                               ERRORS
+    //////////////////////////////////////////////////////////////*/
+    error PPP__InvalidAddress();
+
+    /*//////////////////////////////////////////////////////////////
+                          STATE VARIABLES
+    //////////////////////////////////////////////////////////////*/
+    IERC20 public immutable usdc;
+
+    // Mapping to track deployer/owner deposits
+    mapping(address => uint256) public deposits;
+}
