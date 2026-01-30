@@ -42,16 +42,22 @@ interface IProcessor {
                             FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    /** */
+    /**
+     * @notice Allows the owner to fund the Payment Processor with stablecoins (i.e. USDC)
+     * @param amount The amount of USDC deposited
+     */
     function fundProcessor(uint256 amount) external;
 
-    /** */
+    /**
+     * @notice Allows the owner to withdraw from the Payment Processor an amount
+     * @param amount The amount of USDC to withdraw
+     */
     function withdrawFromProcessor(uint256 amount) external;
 
     /**
      *
      */
-    function extractPaymentProcessingData()
+    function extractPaymentData()
         external
         returns (DataTypes.PaymentData memory paymentData);
 

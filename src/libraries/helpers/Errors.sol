@@ -11,4 +11,5 @@ library Errors {
     error PPP__InvalidAddress();
     error PPP__InvalidAmount();
     error PPP__InvalidUser();
+    error CallerNotProcessor();
 }

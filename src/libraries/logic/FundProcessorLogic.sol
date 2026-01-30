@@ -34,8 +34,8 @@ library FundProcessorLogic {
             revert Errors.PPP__InvalidUser();
         }
 
-        usdc.safeTransferFrom(user, address(this), amount);
         deposits[user] += amount;
+        usdc.safeTransferFrom(user, address(this), amount);
 
         emit IProcessor.ProcessorFunded(user, amount);
     }

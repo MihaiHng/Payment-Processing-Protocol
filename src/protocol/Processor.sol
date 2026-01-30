@@ -39,7 +39,12 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * @author mhng
  * @notice
  */
-contract Processor is Processor_Storage, IProcessor, Ownable, ReentrancyGuard {
+abstract contract Processor is
+    Processor_Storage,
+    IProcessor,
+    Ownable,
+    ReentrancyGuard
+{
     /*//////////////////////////////////////////////////////////////
                           TYPE DECLARATIONS
     //////////////////////////////////////////////////////////////*/
@@ -49,6 +54,10 @@ contract Processor is Processor_Storage, IProcessor, Ownable, ReentrancyGuard {
     /*//////////////////////////////////////////////////////////////
                             MODIFIERS
     //////////////////////////////////////////////////////////////*/
+    modifier onlyPaymentProcessor() {
+        require(msg.sender == owner(), Errors.CallerNotProcessor());
+        _;
+    }
 
     constructor(address _usdc, uint256 _initialAmount) Ownable(msg.sender) {
         if (_usdc == address(0)) {
@@ -57,10 +66,8 @@ contract Processor is Processor_Storage, IProcessor, Ownable, ReentrancyGuard {
         usdc = IERC20(_usdc);
 
         if (_initialAmount > 0) {
-            // Reentrancy? CEI?
             usdc.safeTransferFrom(msg.sender, address(this), _initialAmount);
             deposits[msg.sender] += _initialAmount;
-            //emit Deposit(msg.sender, _initialAmount);
         }
     }
 
@@ -70,7 +77,9 @@ contract Processor is Processor_Storage, IProcessor, Ownable, ReentrancyGuard {
                         EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
     /// @inheritdoc IProcessor
-    function fundProcessor(uint256 amount) external override {
+    function fundProcessor(
+        uint256 amount
+    ) external virtual override nonReentrant onlyOwner {
         FundProcessorLogic.executeFundProcessor(
             usdc,
             msg.sender,
@@ -79,10 +88,16 @@ contract Processor is Processor_Storage, IProcessor, Ownable, ReentrancyGuard {
         );
     }
 
-    function withdrawFromProcessor(uint256 amount) external {}
+    function withdrawFromProcessor(
+        uint256 amount
+    ) external virtual override nonReentrant onlyOwner {}
 
-    function extractPaymentProcessingData()
+    function extractPaymentData()
         external
+        virtual
+        override
+        nonReentrant
+        onlyOwner
         returns (DataTypes.PaymentData memory paymentData)
     {}
 
@@ -92,7 +107,7 @@ contract Processor is Processor_Storage, IProcessor, Ownable, ReentrancyGuard {
         uint256 buyer,
         address item,
         uint256 price
-    ) external returns (bool) {}
+    ) external virtual override nonReentrant onlyOwner returns (bool) {}
 
     /*//////////////////////////////////////////////////////////////
                         INTERNAL FUNCTIONS
