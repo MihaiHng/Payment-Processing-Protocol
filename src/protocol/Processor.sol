@@ -27,6 +27,7 @@ import {Processor_Storage} from "./Processor_Storage.sol";
 import {FundProcessorLogic} from "../libraries/logic/FundProcessorLogic.sol";
 import {IProcessor} from "../interfaces/IProcessor.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
+import {Errors} from "../libraries/helpers/Errors.sol";
 
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
@@ -38,11 +39,12 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * @author mhng
  * @notice
  */
-contract Processor is Processor_Storage, Ownable, ReentrancyGuard {
+contract Processor is Processor_Storage, IProcessor, Ownable, ReentrancyGuard {
     /*//////////////////////////////////////////////////////////////
                           TYPE DECLARATIONS
     //////////////////////////////////////////////////////////////*/
     using SafeERC20 for IERC20;
+    using FundProcessorLogic for IERC20;
 
     /*//////////////////////////////////////////////////////////////
                             MODIFIERS
@@ -50,7 +52,7 @@ contract Processor is Processor_Storage, Ownable, ReentrancyGuard {
 
     constructor(address _usdc, uint256 _initialAmount) Ownable(msg.sender) {
         if (_usdc == address(0)) {
-            revert PPP__InvalidAddress();
+            revert Errors.PPP__InvalidAddress();
         }
         usdc = IERC20(_usdc);
 
@@ -67,8 +69,14 @@ contract Processor is Processor_Storage, Ownable, ReentrancyGuard {
     /*//////////////////////////////////////////////////////////////
                         EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    function fundProcessor() external override {
-        FundProcessorLogic.executeFundProcessor();
+    /// @inheritdoc IProcessor
+    function fundProcessor(uint256 amount) external override {
+        FundProcessorLogic.executeFundProcessor(
+            usdc,
+            msg.sender,
+            deposits,
+            amount
+        );
     }
 
     function withdrawFromProcessor(uint256 amount) external {}

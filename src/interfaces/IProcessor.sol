@@ -31,8 +31,19 @@ import {DataTypes} from "../libraries/types/DataTypes.sol";
  * @notice Defines the basic interface for a Processor Smart Contract.
  */
 interface IProcessor {
+    /*//////////////////////////////////////////////////////////////
+                            EVENTS
+    //////////////////////////////////////////////////////////////*/
+
+    event ProcessorFunded(address user, uint256 amount);
+    event ProcessorWithdraw(address user, uint256 amount);
+
+    /*//////////////////////////////////////////////////////////////
+                            FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+
     /** */
-    function fundProcessor() external;
+    function fundProcessor(uint256 amount) external;
 
     /** */
     function withdrawFromProcessor(uint256 amount) external;
