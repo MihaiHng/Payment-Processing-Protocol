@@ -14,11 +14,11 @@ library WithdrawProcessorLogic {
     using SafeERC20 for IERC20;
 
     /**
-     * @notice Handles the funding of the processor with USDC
+     * @notice Handles withdrawing an amount of USDC from the processor
      * @param usdc The USDC token contract
      * @param deposits Mapping that tracks user deposits
-     * @param amount The amount to deposit
-     * @dev msg.sender is always the depositor
+     * @param amount The amount to withdraw
+     * @dev msg.sender is always the address that executes the withdraw
      */
     function executeWithdrawProcessor(
         IERC20 usdc,
@@ -35,8 +35,8 @@ library WithdrawProcessorLogic {
         }
 
         deposits[user] += amount;
-        usdc.safeTransferFrom(user, address(this), amount);
+        usdc.safeTransferFrom(address(this), user, amount);
 
-        emit IProcessor.ProcessorFunded(user, amount);
+        emit IProcessor.ProcessorWithdraw(user, amount);
     }
 }
