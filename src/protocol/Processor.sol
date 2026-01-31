@@ -25,6 +25,7 @@ pragma solidity 0.8.33;
 
 import {Processor_Storage} from "./Processor_Storage.sol";
 import {FundProcessorLogic} from "../libraries/logic/FundProcessorLogic.sol";
+import {WithdrawProcessorLogic} from "../libraries/logic/WithdrawProcessorLogic.sol";
 import {IProcessor} from "../interfaces/IProcessor.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
@@ -50,12 +51,13 @@ abstract contract Processor is
     //////////////////////////////////////////////////////////////*/
     using SafeERC20 for IERC20;
     using FundProcessorLogic for IERC20;
+    using WithdrawProcessorLogic for IERC20;
 
     /*//////////////////////////////////////////////////////////////
                             MODIFIERS
     //////////////////////////////////////////////////////////////*/
     modifier onlyPaymentProcessor() {
-        require(msg.sender == owner(), Errors.CallerNotProcessor());
+        require(msg.sender == owner(), Errors.PPP__CallerNotProcessor());
         _;
     }
 
@@ -80,17 +82,14 @@ abstract contract Processor is
     function fundProcessor(
         uint256 amount
     ) external virtual override nonReentrant onlyOwner {
-        FundProcessorLogic.executeFundProcessor(
-            usdc,
-            msg.sender,
-            deposits,
-            amount
-        );
+        FundProcessorLogic.executeFundProcessor(usdc, deposits, amount);
     }
 
     function withdrawFromProcessor(
         uint256 amount
-    ) external virtual override nonReentrant onlyOwner {}
+    ) external virtual override nonReentrant onlyOwner {
+        WithdrawProcessorLogic.executeWithdrawProcessor(usdc, deposits, amount);
+    }
 
     function extractPaymentData()
         external

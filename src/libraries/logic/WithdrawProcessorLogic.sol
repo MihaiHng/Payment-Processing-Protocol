@@ -10,7 +10,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /**
  *
  */
-library FundProcessorLogic {
+library WithdrawProcessorLogic {
     using SafeERC20 for IERC20;
 
     /**
@@ -20,7 +20,7 @@ library FundProcessorLogic {
      * @param amount The amount to deposit
      * @dev msg.sender is always the depositor
      */
-    function executeFundProcessor(
+    function executeWithdrawProcessor(
         IERC20 usdc,
         mapping(address => uint256) storage deposits,
         uint256 amount
