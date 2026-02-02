@@ -106,9 +106,8 @@ abstract contract Processor is
         nonReentrant
         onlyOwner
     {
-        WithdrawProcessorLogic.executeWithdrawAllFromProcessor(
-            usdc,
-            totalBalance
+        totalBalance = WithdrawProcessorLogic.executeWithdrawAllFromProcessor(
+            usdc
         );
     }
 
@@ -132,4 +131,21 @@ abstract contract Processor is
     /*//////////////////////////////////////////////////////////////
                         INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
+
+    /*//////////////////////////////////////////////////////////////
+                        GETTER/VIEW FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+    /**
+     * @notice Get the current balance of the processor
+     */
+    function getBalance() external view returns (uint256) {
+        return totalBalance;
+    }
+
+    /**
+     * @notice Get the actual USDC balance in the contract (for verification)
+     */
+    function getActualBalance() external view returns (uint256) {
+        return usdc.balanceOf(address(this));
+    }
 }

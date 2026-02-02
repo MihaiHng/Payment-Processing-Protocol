@@ -11,7 +11,7 @@ library Errors {
     error PPP__InvalidAddress();
     error PPP__InvalidAmount();
     error PPP__NothingToWithdraw();
-    //error PPP__InvalidUser();
+    // error PPP__InvalidUser();
     error PPP__CallerNotProcessor();
     error PPP__InsufficientBalance();
 }

@@ -4,8 +4,13 @@ pragma solidity ^0.8.13;
 import {Script} from "forge-std/Script.sol";
 import {Processor} from "../src/protocol/Processor.sol";
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 contract DeployProcessor is Script {
     Processor public processor;
+    IERC20 usdc;
+
+    uint256 private constant initalAmount = 1000;
 
     /**
      * # 1. Approve USDC to contract (needs to happen before or during deploy)
@@ -19,7 +24,7 @@ contract DeployProcessor is Script {
     function run() public {
         vm.startBroadcast();
 
-        processor = new Processor();
+        processor = new Processor(usdc, initalAmount);
 
         vm.stopBroadcast();
     }

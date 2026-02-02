@@ -25,7 +25,7 @@ library WithdrawProcessorLogic {
         IERC20 usdc,
         uint256 amount,
         uint256 currentBalance
-    ) public returns (uint256) {
+    ) external returns (uint256) {
         if (amount == 0) {
             revert Errors.PPP__InvalidAmount();
         }
@@ -46,21 +46,21 @@ library WithdrawProcessorLogic {
     /**
      * @notice Handles withdrawing the total balance of USDC from the processor
      * @param usdc The USDC token contract
-     * @param currentBalance The current USDC balance of the Processor
      * @dev msg.sender is always the address that executes the withdraw
      */
     function executeWithdrawAllFromProcessor(
-        IERC20 usdc,
-        uint256 currentBalance
-    ) external {
+        IERC20 usdc
+    ) external returns (uint256) {
         uint256 totalWithdraw = usdc.balanceOf(address(this));
 
         if (totalWithdraw == 0) {
             revert Errors.PPP__NothingToWithdraw();
         }
 
-        executeWithdrawFromProcessor(usdc, totalWithdraw, currentBalance);
+        usdc.safeTransfer(msg.sender, totalWithdraw);
 
         emit IProcessor.ProcessorWithdrawAll(msg.sender, totalWithdraw);
+
+        return 0;
     }
 }
