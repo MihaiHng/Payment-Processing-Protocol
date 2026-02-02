@@ -35,8 +35,17 @@ interface IProcessor {
                             EVENTS
     //////////////////////////////////////////////////////////////*/
 
-    event ProcessorFunded(address user, uint256 amount);
-    event ProcessorWithdraw(address user, uint256 amount);
+    event ProcessorFunded(
+        address user,
+        uint256 indexed amount,
+        uint256 indexed totalBalance
+    );
+    event ProcessorWithdraw(
+        address user,
+        uint256 indexed amount,
+        uint256 indexed totalBalance
+    );
+    event ProcessorWithdrawAll(address user, uint256 indexed totalWithdraw);
 
     /*//////////////////////////////////////////////////////////////
                             FUNCTIONS
@@ -53,6 +62,11 @@ interface IProcessor {
      * @param amount The amount of USDC to withdraw
      */
     function withdrawFromProcessor(uint256 amount) external;
+
+    /**
+     * @notice Allows the owner to withdraw from the Payment Processor all the balance
+     */
+    function withdrawAllFromProcessor() external;
 
     /**
      *

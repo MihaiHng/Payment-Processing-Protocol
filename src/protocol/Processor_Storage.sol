@@ -31,6 +31,8 @@ contract Processor_Storage {
     //////////////////////////////////////////////////////////////*/
     IERC20 public immutable usdc;
 
+    uint256 public totalBalance;
+
     // Mapping to track deployer/owner deposits
-    mapping(address => uint256) public deposits;
+    mapping(address => uint256) public totalFunded;
 }

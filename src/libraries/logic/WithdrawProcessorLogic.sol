@@ -16,27 +16,51 @@ library WithdrawProcessorLogic {
     /**
      * @notice Handles withdrawing an amount of USDC from the processor
      * @param usdc The USDC token contract
-     * @param deposits Mapping that tracks user deposits
      * @param amount The amount to withdraw
+     * @param currentBalance The current USDC balance of the Processor
+     
      * @dev msg.sender is always the address that executes the withdraw
      */
-    function executeWithdrawProcessor(
+    function executeWithdrawFromProcessor(
         IERC20 usdc,
-        mapping(address => uint256) storage deposits,
-        uint256 amount
-    ) external {
+        uint256 amount,
+        uint256 currentBalance
+    ) public returns (uint256) {
         if (amount == 0) {
             revert Errors.PPP__InvalidAmount();
         }
 
-        address user = msg.sender;
-        if (user == address(0)) {
-            revert Errors.PPP__InvalidUser();
+        if (amount > currentBalance) {
+            revert Errors.PPP__InsufficientBalance();
         }
 
-        deposits[user] += amount;
-        usdc.safeTransferFrom(address(this), user, amount);
+        currentBalance -= amount;
 
-        emit IProcessor.ProcessorWithdraw(user, amount);
+        usdc.safeTransfer(msg.sender, amount);
+
+        emit IProcessor.ProcessorWithdraw(msg.sender, amount, currentBalance);
+
+        return currentBalance;
+    }
+
+    /**
+     * @notice Handles withdrawing the total balance of USDC from the processor
+     * @param usdc The USDC token contract
+     * @param currentBalance The current USDC balance of the Processor
+     * @dev msg.sender is always the address that executes the withdraw
+     */
+    function executeWithdrawAllFromProcessor(
+        IERC20 usdc,
+        uint256 currentBalance
+    ) external {
+        uint256 totalWithdraw = usdc.balanceOf(address(this));
+
+        if (totalWithdraw == 0) {
+            revert Errors.PPP__NothingToWithdraw();
+        }
+
+        executeWithdrawFromProcessor(usdc, totalWithdraw, currentBalance);
+
+        emit IProcessor.ProcessorWithdrawAll(msg.sender, totalWithdraw);
     }
 }

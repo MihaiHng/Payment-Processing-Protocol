@@ -69,7 +69,7 @@ abstract contract Processor is
 
         if (_initialAmount > 0) {
             usdc.safeTransferFrom(msg.sender, address(this), _initialAmount);
-            deposits[msg.sender] += _initialAmount;
+            totalBalance = _initialAmount;
         }
     }
 
@@ -82,13 +82,34 @@ abstract contract Processor is
     function fundProcessor(
         uint256 amount
     ) external virtual override nonReentrant onlyOwner {
-        FundProcessorLogic.executeFundProcessor(usdc, deposits, amount);
+        totalBalance = FundProcessorLogic.executeFundProcessor(
+            usdc,
+            amount,
+            totalBalance
+        );
     }
 
     function withdrawFromProcessor(
         uint256 amount
     ) external virtual override nonReentrant onlyOwner {
-        WithdrawProcessorLogic.executeWithdrawProcessor(usdc, deposits, amount);
+        totalBalance = WithdrawProcessorLogic.executeWithdrawFromProcessor(
+            usdc,
+            amount,
+            totalBalance
+        );
+    }
+
+    function withdrawAllFromProcessor()
+        external
+        virtual
+        override
+        nonReentrant
+        onlyOwner
+    {
+        WithdrawProcessorLogic.executeWithdrawAllFromProcessor(
+            usdc,
+            totalBalance
+        );
     }
 
     function extractPaymentData()

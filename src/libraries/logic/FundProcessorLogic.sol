@@ -16,27 +16,24 @@ library FundProcessorLogic {
     /**
      * @notice Handles the funding of the processor with USDC
      * @param usdc The USDC token contract
-     * @param deposits Mapping that tracks user deposits
      * @param amount The amount to deposit
+     * @param currentBalance The current USDC balance of the Processor
      * @dev msg.sender is always the depositor
      */
     function executeFundProcessor(
         IERC20 usdc,
-        mapping(address => uint256) storage deposits,
-        uint256 amount
-    ) external {
+        uint256 amount,
+        uint256 currentBalance
+    ) external returns (uint256) {
         if (amount == 0) {
             revert Errors.PPP__InvalidAmount();
         }
 
-        address user = msg.sender;
-        if (user == address(0)) {
-            revert Errors.PPP__InvalidUser();
-        }
+        currentBalance += amount;
+        usdc.safeTransferFrom(msg.sender, address(this), amount);
 
-        deposits[user] += amount;
-        usdc.safeTransferFrom(user, address(this), amount);
+        emit IProcessor.ProcessorFunded(msg.sender, amount, currentBalance);
 
-        emit IProcessor.ProcessorFunded(user, amount);
+        return currentBalance;
     }
 }
