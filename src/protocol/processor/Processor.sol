@@ -24,11 +24,11 @@
 pragma solidity 0.8.33;
 
 import {Processor_Storage} from "./Processor_Storage.sol";
-import {FundProcessorLogic} from "../libraries/logic/FundProcessorLogic.sol";
-import {WithdrawProcessorLogic} from "../libraries/logic/WithdrawProcessorLogic.sol";
-import {IProcessor} from "../interfaces/IProcessor.sol";
-import {DataTypes} from "../libraries/types/DataTypes.sol";
-import {Errors} from "../libraries/helpers/Errors.sol";
+import {FundProcessorLogic} from "../../libraries/logic/FundProcessorLogic.sol";
+import {WithdrawProcessorLogic} from "../../libraries/logic/WithdrawProcessorLogic.sol";
+import {IProcessor} from "../../interfaces/IProcessor.sol";
+import {DataTypes} from "../../libraries/types/DataTypes.sol";
+import {Errors} from "../../libraries/helpers/Errors.sol";
 
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";

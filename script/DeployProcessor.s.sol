@@ -10,7 +10,7 @@ contract DeployProcessor is Script {
     Processor public processor;
     IERC20 usdc;
 
-    uint256 private constant initalAmount = 1000;
+    uint256 private constant initalAmount = 1000e6;
 
     /**
      * # 1. Approve USDC to contract (needs to happen before or during deploy)
@@ -24,7 +24,7 @@ contract DeployProcessor is Script {
     function run() public {
         vm.startBroadcast();
 
-        processor = new Processor(usdc, initalAmount);
+        //processor = new Processor(usdc, initalAmount);
 
         vm.stopBroadcast();
     }
