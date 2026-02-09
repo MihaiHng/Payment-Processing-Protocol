@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
+pragma solidity 0.8.33;
 
 import {BaseUpgradeabilityProxy} from "../../dependencies/openzeppelin/upgradeability/BaseUpgradeabilityProxy.sol";
 
 /**
  * @title BaseImmutableAdminUpgradeabilityProxy
- * @author Aave, inspired by the OpenZeppelin upgradeability proxy pattern
+ * @author mhng, based on Aave implemetation, inspired by the OpenZeppelin upgradeability proxy pattern
  * @notice This contract combines an upgradeability proxy with an authorization
  * mechanism for administrative tasks.
  * @dev The admin role is stored in an immutable, which helps saving transactions costs

@@ -7,7 +7,7 @@ import {BaseImmutableAdminUpgradeabilityProxy} from "./BaseImmutableAdminUpgrade
 
 /**
  * @title InitializableAdminUpgradeabilityProxy
- * @author mhng, based on Aave implemetation
+ * @author mhng, based on Aave implemetation, inspired by the OpenZeppelin upgradeability proxy pattern
  * @dev Extends BaseAdminUpgradeabilityProxy with an initializer function
  */
 contract InitializableImmutableAdminUpgradeabilityProxy is
