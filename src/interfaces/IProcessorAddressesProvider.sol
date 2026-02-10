@@ -10,7 +10,7 @@ interface IProcessorAddressesProvider {
     /*//////////////////////////////////////////////////////////////
                             EVENTS
     //////////////////////////////////////////////////////////////*/
-    // event MarketIdSet(string indexed oldMarketId, string indexed newMarketId);
+    // event VersionIdSet(string indexed oldVersionId, string indexed newVersionId); // Possible future development
 
     /**
      * @dev Emitted when the Processor is updated.

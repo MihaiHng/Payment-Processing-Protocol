@@ -7,8 +7,8 @@ import {IProcessorAddressesProvider} from "../../interfaces/IProcessorAddressesP
 import {InitializableImmutableAdminUpgradeabilityProxy} from "../../misc/upgradeability/InitializableImmutableAdminUpgradeabilityProxy.sol";
 
 contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
-    // Chain identifier(ex. Ethereum mainnet)
-    // string private _chainId;
+    // Identifier for different Processor versions on the same chain -> possible future development
+    // string private _versionId;
 
     // Map of registered addresses (identifier => registeredAddress)
     mapping(bytes32 => address) private _addresses;
@@ -16,11 +16,17 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
     // Main identifiers
     bytes32 private constant PROCESSOR = "PROCESSOR";
 
+    // Future modules:
+    // bytes32 private constant FEE_MANAGER = "FEE_MANAGER";
+    // bytes32 private constant PROCESSOR_CONFIGURATOR = "PROCESSOR_CONFIGURATOR";
+
     /**
      * @dev Constructor.
      * @param owner The owner address of this contract.
      */
-    constructor(address owner) Ownable(owner) {}
+    constructor(address owner /*, string memory versionId*/) Ownable(owner) {
+        // _setVersionId(versionId); // Possible future development
+    }
 
     /*//////////////////////////////////////////////////////////////
                             VIEW FUNCTIONS
@@ -110,16 +116,6 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
         }
     }
 
-    //   /**
-    //    * @notice Updates the identifier of the Aave market.
-    //    * @param newMarketId The new id of the market
-    //    */
-    //   function _setMarketId(string memory newMarketId) internal {
-    //     string memory oldMarketId = _marketId;
-    //     _marketId = newMarketId;
-    //     emit MarketIdSet(oldMarketId, newMarketId);
-    //   }
-
     /**
      * @notice Returns the implementation contract of the proxy contract by its identifier.
      * @dev It returns ZERO if there is no registered address with the given id
@@ -139,4 +135,15 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
                 ).implementation();
         }
     }
+
+    //   /**
+    //    * @dev Possible future development
+    //    * @notice Updates the version of the Processor.
+    //    * @param newVersionId The new version id of the Processor
+    //    */
+    //   function _setVersionId(string memory newVersionId) internal {
+    //     string memory oldVersionId = _versionId;
+    //     _versionId = newVersionId;
+    //     emit VersionIdSet(oldVersionId, newVersionId);
+    //   }
 }
