@@ -27,8 +27,10 @@ import {Processor_Storage} from "./Processor_Storage.sol";
 import {FundProcessorLogic} from "../../libraries/logic/FundProcessorLogic.sol";
 import {WithdrawProcessorLogic} from "../../libraries/logic/WithdrawProcessorLogic.sol";
 import {IProcessor} from "../../interfaces/IProcessor.sol";
+import {IProcessorAddressesProvider} from "../../interfaces/IProcessorAddressesProvider.sol";
 import {DataTypes} from "../../libraries/types/DataTypes.sol";
 import {Errors} from "../../libraries/helpers/Errors.sol";
+import {VersionedInitializable} from "../../misc/upgradeability/VersionedInitializable.sol";
 
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
@@ -41,6 +43,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * @notice
  */
 abstract contract Processor is
+    VersionedInitializable,
     Processor_Storage,
     IProcessor,
     Ownable,
@@ -54,6 +57,11 @@ abstract contract Processor is
     using WithdrawProcessorLogic for IERC20;
 
     /*//////////////////////////////////////////////////////////////
+                          STATE VARIABLES
+    //////////////////////////////////////////////////////////////*/
+    IProcessorAddressesProvider public immutable ADDRESSES_PROVIDER;
+
+    /*//////////////////////////////////////////////////////////////
                             MODIFIERS
     //////////////////////////////////////////////////////////////*/
     modifier onlyPaymentProcessor() {
@@ -61,7 +69,13 @@ abstract contract Processor is
         _;
     }
 
-    constructor(address _usdc, uint256 _initialAmount) Ownable(msg.sender) {
+    constructor(
+        IProcessorAddressesProvider provider,
+        address _usdc,
+        uint256 _initialAmount
+    ) Ownable(msg.sender) {
+        ADDRESSES_PROVIDER = provider;
+
         if (_usdc == address(0)) {
             revert Errors.PPP__InvalidAddress();
         }
