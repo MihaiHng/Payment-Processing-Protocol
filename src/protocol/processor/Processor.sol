@@ -28,6 +28,7 @@ import {FundProcessorLogic} from "../../libraries/logic/FundProcessorLogic.sol";
 import {WithdrawProcessorLogic} from "../../libraries/logic/WithdrawProcessorLogic.sol";
 import {IProcessor} from "../../interfaces/IProcessor.sol";
 import {IProcessorAddressesProvider} from "../../interfaces/IProcessorAddressesProvider.sol";
+import {IProcessorAddressesProvider} from "../../interfaces/IProcessorAddressesProvider.sol";
 import {DataTypes} from "../../libraries/types/DataTypes.sol";
 import {Errors} from "../../libraries/helpers/Errors.sol";
 import {VersionedInitializable} from "../../misc/upgradeability/VersionedInitializable.sol";
@@ -40,7 +41,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /**
  * @title Payment Processor
  * @author mhng
- * @notice
+ * @notice 'usdc' and 'amount' can be included in a ProcessorConfiguration file in future developments, which will allow more modularity and flexibility
  */
 abstract contract Processor is
     VersionedInitializable,
@@ -92,6 +93,15 @@ abstract contract Processor is
     /*//////////////////////////////////////////////////////////////
                         EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
+    /**
+     * @notice Initializes the Processor.
+     * @dev Function is invoked by the proxy contract when the Processor contract is added to the
+     * ProcessorAddressesProvider.
+     * @dev Caching the address of the ProcessorAddressesProvider in order to reduce gas consumption on subsequent operations
+     * @param provider The address of the ProcessorAddressesProvider
+     */
+    function initialize(IProcessorAddressesProvider provider) external virtual;
+
     /// @inheritdoc IProcessor
     function fundProcessor(
         uint256 amount

@@ -4,17 +4,17 @@ pragma solidity ^0.8.10;
 import {Script, console} from "forge-std/Script.sol";
 
 // Core contracts
-import {PoolAddressesProvider} from "@aave-v3-origin/contracts/protocol/configuration/PoolAddressesProvider.sol";
-import {PoolInstance} from "@aave-v3-origin/contracts/instances/PoolInstance.sol";
-import {PoolConfiguratorInstance} from "@aave-v3-origin/contracts/instances/PoolConfiguratorInstance.sol";
-import {ACLManager} from "@aave-v3-origin/contracts/protocol/configuration/ACLManager.sol";
-import {AaveOracle} from "@aave-v3-origin/contracts/misc/AaveOracle.sol";
-import {AaveProtocolDataProvider} from "@aave-v3-origin/contracts/misc/AaveProtocolDataProvider.sol";
-import {DefaultReserveInterestRateStrategyV2} from "@aave-v3-origin/contracts/misc/DefaultReserveInterestRateStrategyV2.sol";
+// import {PoolAddressesProvider} from "@aave-v3-origin/contracts/protocol/configuration/PoolAddressesProvider.sol";
+// import {PoolInstance} from "@aave-v3-origin/contracts/instances/PoolInstance.sol";
+// import {PoolConfiguratorInstance} from "@aave-v3-origin/contracts/instances/PoolConfiguratorInstance.sol";
+// import {ACLManager} from "@aave-v3-origin/contracts/protocol/configuration/ACLManager.sol";
+// import {AaveOracle} from "@aave-v3-origin/contracts/misc/AaveOracle.sol";
+// import {AaveProtocolDataProvider} from "@aave-v3-origin/contracts/misc/AaveProtocolDataProvider.sol";
+// import {DefaultReserveInterestRateStrategyV2} from "@aave-v3-origin/contracts/misc/DefaultReserveInterestRateStrategyV2.sol";
 
 // Interfaces
-import {IPoolAddressesProvider} from "@aave-v3-origin/contracts/interfaces/IPoolAddressesProvider.sol";
-import {IPool} from "@aave-v3-origin/contracts/interfaces/IPool.sol";
+// import {IPoolAddressesProvider} from "@aave-v3-origin/contracts/interfaces/IPoolAddressesProvider.sol";
+// import {IPool} from "@aave-v3-origin/contracts/interfaces/IPool.sol";
 
 /**
  * @title DeployAaveV3

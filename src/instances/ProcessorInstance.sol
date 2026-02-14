@@ -10,8 +10,8 @@ import {Errors} from "../libraries/helpers/Errors.sol";
  * @author mhng
  * @notice Instance of the Payment Processor
  */
-contract PoolInstance is Processor {
-    uint256 public constant POOL_REVISION = 1;
+contract ProcessorInstance is Processor {
+    uint256 public constant PROCESSOR_REVISION = 1;
 
     constructor(
         IProcessorAddressesProvider provider,
@@ -30,12 +30,12 @@ contract PoolInstance is Processor {
         IProcessorAddressesProvider provider
     ) external virtual override initializer {
         require(
-            IProcessorAddressesProvider(provider) == ADDRESSES_PROVIDER,
+            address(provider) == address(ADDRESSES_PROVIDER),
             Errors.PPP_InvalidAddressesProvider()
         );
     }
 
     function getRevision() internal pure virtual override returns (uint256) {
-        return POOL_REVISION;
+        return PROCESSOR_REVISION;
     }
 }

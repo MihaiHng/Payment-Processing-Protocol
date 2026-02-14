@@ -63,9 +63,6 @@ interface IProcessorAddressesProvider {
     /*//////////////////////////////////////////////////////////////
                             FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-
-    //function getMarketId() external view returns (string memory);
-
     /**
      * @notice Returns an address by its identifier.
      * @dev The returned address might be an EOA or a contract, potentially proxied
@@ -80,8 +77,6 @@ interface IProcessorAddressesProvider {
      * @return The Processor proxy address
      */
     function getProcessor() external view returns (address);
-
-    //function setMarketId(string memory newMarketId) external;
 
     /**
      * @notice Sets an address for an id replacing the address saved in the addresses map.
