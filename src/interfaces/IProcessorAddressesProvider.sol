@@ -60,6 +60,16 @@ interface IProcessorAddressesProvider {
         address indexed newImplementationAddress
     );
 
+    /**
+     * @dev Emmited when a stablecoin is set for the first time or updated for a Processor
+     * @param oldStablecoin The address of the old stablecoin used
+     * @param newStablecoin The address of the old stablecoin used
+     */
+    event StablecoinSet(
+        address indexed oldStablecoin,
+        address indexed newStablecoin
+    );
+
     /*//////////////////////////////////////////////////////////////
                             FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -77,6 +87,12 @@ interface IProcessorAddressesProvider {
      * @return The Processor proxy address
      */
     function getProcessor() external view returns (address);
+
+    /**
+     * @notice Returns the address of the current stablecoin used by the processor
+     * @dev It returns ZERO if there is no stablecoin set for the Processor
+     */
+    function getStablecoin() external view returns (address);
 
     /**
      * @notice Sets an address for an id replacing the address saved in the addresses map.
@@ -99,6 +115,12 @@ interface IProcessorAddressesProvider {
         bytes32 id,
         address newImplementationAddress
     ) external;
+
+    /**
+     * @notice Sets the stablecoin that will be used with this Processor
+     * @param stablecoinAddress The stablecoin address that will be set for usage with this Processor
+     */
+    function setStablecoin(address stablecoinAddress) external;
 
     /**
      * @notice Updates the implementation of the Processor, or creates a proxy
