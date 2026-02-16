@@ -124,7 +124,8 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
 
         bytes memory params = abi.encodeWithSignature(
             "initialize(address)",
-            address(this)
+            address(this),
+            stablecoinAddress
         );
 
         if (proxyAddress == address(0)) {

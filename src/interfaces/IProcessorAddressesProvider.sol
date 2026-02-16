@@ -118,6 +118,12 @@ interface IProcessorAddressesProvider {
 
     /**
      * @notice Sets or updates the stablecoin that will be used with this Processor
+     * @dev IMPORTANT: THIS FUNCTION MUST BE CALLED BEFORE setProcessorImpl(), otherwise setProcessorImpl() will revert
+     * User deploys with ANY stablecoin on ANY chain
+     * addressesProvider = new ProcessorAddressesProvider(owner);
+     * addressesProvider.setStablecoin(stablecoinAddress);  // USDC, USDT, DAI, etc.
+     * addressesProvider.setProcessorImpl(implementation);
+     * That's it! User has their own Payment Processor
      * @param stablecoinAddress The stablecoin address that will be set for usage with this Processor
      */
     function setStablecoin(address stablecoinAddress) external;
