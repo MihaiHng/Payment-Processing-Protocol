@@ -15,14 +15,14 @@ library WithdrawProcessorLogic {
 
     /**
      * @notice Handles withdrawing an amount of USDC from the processor
-     * @param usdc The USDC token contract
+     * @param stablecoin The stablecoin address (USDC, USDT, DAI, etc.)
      * @param amount The amount to withdraw
      * @param currentBalance The current USDC balance of the Processor
      
      * @dev msg.sender is always the address that executes the withdraw
      */
     function executeWithdrawFromProcessor(
-        IERC20 usdc,
+        IERC20 stablecoin,
         uint256 amount,
         uint256 currentBalance
     ) external returns (uint256) {
@@ -36,7 +36,7 @@ library WithdrawProcessorLogic {
 
         currentBalance -= amount;
 
-        usdc.safeTransfer(msg.sender, amount);
+        stablecoin.safeTransfer(msg.sender, amount);
 
         emit IProcessor.ProcessorWithdraw(msg.sender, amount, currentBalance);
 
@@ -45,19 +45,19 @@ library WithdrawProcessorLogic {
 
     /**
      * @notice Handles withdrawing the total balance of USDC from the processor
-     * @param usdc The USDC token contract
+     * @param stablecoin The stablecoin address (USDC, USDT, DAI, etc.)
      * @dev msg.sender is always the address that executes the withdraw
      */
     function executeWithdrawAllFromProcessor(
-        IERC20 usdc
+        IERC20 stablecoin
     ) external returns (uint256) {
-        uint256 totalWithdraw = usdc.balanceOf(address(this));
+        uint256 totalWithdraw = stablecoin.balanceOf(address(this));
 
         if (totalWithdraw == 0) {
             revert Errors.PPP__NothingToWithdraw();
         }
 
-        usdc.safeTransfer(msg.sender, totalWithdraw);
+        stablecoin.safeTransfer(msg.sender, totalWithdraw);
 
         emit IProcessor.ProcessorWithdrawAll(msg.sender, totalWithdraw);
 

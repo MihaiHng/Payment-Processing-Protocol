@@ -41,7 +41,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /**
  * @title Payment Processor
  * @author mhng
- * @notice 'usdc' and 'amount' can be included in a ProcessorConfiguration file in future developments, which will allow more modularity and flexibility
+ * @dev Supports any ERC20 stablecoin (USDC, USDT, DAI, etc.)
  */
 abstract contract Processor is
     VersionedInitializable,
@@ -70,22 +70,8 @@ abstract contract Processor is
         _;
     }
 
-    constructor(
-        IProcessorAddressesProvider provider,
-        address _usdc,
-        uint256 _initialAmount
-    ) Ownable(msg.sender) {
+    constructor(IProcessorAddressesProvider provider) Ownable(msg.sender) {
         ADDRESSES_PROVIDER = provider;
-
-        if (_usdc == address(0)) {
-            revert Errors.PPP__InvalidAddress();
-        }
-        usdc = IERC20(_usdc);
-
-        if (_initialAmount > 0) {
-            usdc.safeTransferFrom(msg.sender, address(this), _initialAmount);
-            totalBalance = _initialAmount;
-        }
     }
 
     // receive() external payable {}
@@ -94,20 +80,27 @@ abstract contract Processor is
                         EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
     /**
-     * @notice Initializes the Processor.
+     * @notice Initializes the Processor with the addresses provider address and the set stablecoin address.
      * @dev Function is invoked by the proxy contract when the Processor contract is added to the
      * ProcessorAddressesProvider.
      * @dev Caching the address of the ProcessorAddressesProvider in order to reduce gas consumption on subsequent operations
-     * @param provider The address of the ProcessorAddressesProvider
+     * @param _provider The address of the ProcessorAddressesProvider
+     * @param _stablecoin The stablecoin address (USDC, USDT, DAI, etc.)
      */
-    function initialize(IProcessorAddressesProvider provider) external virtual;
+    function initialize(
+        IProcessorAddressesProvider _provider,
+        address _stablecoin
+    ) external virtual;
 
     /// @inheritdoc IProcessor
     function fundProcessor(
         uint256 amount
     ) external virtual override nonReentrant onlyOwner {
+        if (address(stablecoin) == address(0)) {
+            revert Errors.PPP_StablecoinNotSet();
+        }
         totalBalance = FundProcessorLogic.executeFundProcessor(
-            usdc,
+            stablecoin,
             amount,
             totalBalance
         );
@@ -117,7 +110,7 @@ abstract contract Processor is
         uint256 amount
     ) external virtual override nonReentrant onlyOwner {
         totalBalance = WithdrawProcessorLogic.executeWithdrawFromProcessor(
-            usdc,
+            stablecoin,
             amount,
             totalBalance
         );
@@ -131,7 +124,7 @@ abstract contract Processor is
         onlyOwner
     {
         totalBalance = WithdrawProcessorLogic.executeWithdrawAllFromProcessor(
-            usdc
+            stablecoin
         );
     }
 
@@ -167,9 +160,16 @@ abstract contract Processor is
     }
 
     /**
-     * @notice Get the actual USDC balance in the contract (for verification)
+     * @notice Get the actual stablecoin balance in the contract (for verification)
      */
     function getActualBalance() external view returns (uint256) {
-        return usdc.balanceOf(address(this));
+        return stablecoin.balanceOf(address(this));
+    }
+
+    /**
+     * @notice Get the stablecoin address used by the Processor
+     */
+    function getStablecoin() external view returns (address) {
+        return address(stablecoin);
     }
 }

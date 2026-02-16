@@ -18,7 +18,7 @@ contract ProcessorInstance is Processor {
     constructor(IProcessorAddressesProvider provider) Processor(provider) {}
 
     /**
-     * @notice Initializes the Processor with the addresses provider address and the used stablecoin address .
+     * @notice Initializes the Processor with the addresses provider address and the set stablecoin address.
      * @dev Function is invoked by the proxy contract when the Processor contract is added to the
      * ProcessorAddressesProvider.
      * @dev The passed ProcessorAddressesProvider is validated against the PROCESSOR.ADDRESSES_PROVIDER, to ensure the upgrade is done with correct intention.
@@ -33,7 +33,7 @@ contract ProcessorInstance is Processor {
             revert Errors.PPP_InvalidAddressesProvider();
         }
 
-        if (_stablecoin != address(0)) {
+        if (_stablecoin == address(0)) {
             revert Errors.PPP_InvalidStablecoin();
         }
 

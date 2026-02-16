@@ -15,13 +15,13 @@ library FundProcessorLogic {
 
     /**
      * @notice Handles the funding of the processor with USDC
-     * @param usdc The USDC token contract
+     * @param stablecoin The stablecoin address (USDC, USDT, DAI, etc.)
      * @param amount The amount to deposit
      * @param currentBalance The current USDC balance of the Processor
      * @dev msg.sender is always the depositor
      */
     function executeFundProcessor(
-        IERC20 usdc,
+        IERC20 stablecoin,
         uint256 amount,
         uint256 currentBalance
     ) external returns (uint256) {
@@ -30,7 +30,7 @@ library FundProcessorLogic {
         }
 
         currentBalance += amount;
-        usdc.safeTransferFrom(msg.sender, address(this), amount);
+        stablecoin.safeTransferFrom(msg.sender, address(this), amount);
 
         emit IProcessor.ProcessorFunded(msg.sender, amount, currentBalance);
 
