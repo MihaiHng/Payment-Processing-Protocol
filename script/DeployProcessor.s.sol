@@ -67,19 +67,42 @@ forge script script/DeployProcessor.s.sol \
     --slow
  */
 
+/**
+ # Deploy with default USDC
+forge script script/DeployProcessor.s.sol \
+    --rpc-url $BASE_RPC_URL \
+    --account deployer \
+    --broadcast
+
+# Deploy with USDT instead
+STABLECOIN=0xdAC17F958D2ee523a2206206994597C13D831ec7 \
+forge script script/DeployProcessor.s.sol \
+    --rpc-url $ETH_RPC_URL \
+    --account deployer \
+    --broadcast
+
+# Deploy with DAI
+STABLECOIN=0x6B175474E89094C44Da98b954EesfddfE3C4Beba \
+forge script script/DeployProcessor.s.sol \
+    --rpc-url $ETH_RPC_URL \
+    --account deployer \
+    --broadcast
+ */
+
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.33;
 
 import {Script, console} from "forge-std/Script.sol";
-import {Processor} from "../src/protocol/processor/Processor.sol";
+//import {Processor} from "../src/protocol/processor/Processor.sol";
 import {ProcessorInstance} from "../src/instances/ProcessorInstance.sol";
 import {ProcessorAddressesProvider} from "../src/protocol/configuration/ProcessorAddressesProvider.sol";
+import {IProcessorAddressesProvider} from "../src/interfaces/IProcessorAddressesProvider.sol";
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract DeployProcessor is Script {
-    IERC20 public usdc;
-    uint256 public constant initialAmount = 1000e6;
+    //IERC20 public usdc;
+    //uint256 public constant initialAmount = 1000e6;
 
     // Deployed contract addresses
     ProcessorInstance public processorImplementation;
