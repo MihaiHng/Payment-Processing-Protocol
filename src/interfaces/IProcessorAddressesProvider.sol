@@ -117,7 +117,7 @@ interface IProcessorAddressesProvider {
     ) external;
 
     /**
-     * @notice Sets the stablecoin that will be used with this Processor
+     * @notice Sets or updates the stablecoin that will be used with this Processor
      * @param stablecoinAddress The stablecoin address that will be set for usage with this Processor
      */
     function setStablecoin(address stablecoinAddress) external;

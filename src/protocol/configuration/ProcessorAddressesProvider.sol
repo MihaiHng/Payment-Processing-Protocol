@@ -5,6 +5,7 @@ pragma solidity 0.8.33;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IProcessorAddressesProvider} from "../../interfaces/IProcessorAddressesProvider.sol";
 import {InitializableImmutableAdminUpgradeabilityProxy} from "../../misc/upgradeability/InitializableImmutableAdminUpgradeabilityProxy.sol";
+import {Errors} from "../../libraries/helpers/Errors.sol";
 
 contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
     // Identifier for different Processor versions on the same chain -> possible future development
@@ -15,6 +16,7 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
 
     // Main identifiers
     bytes32 private constant PROCESSOR = "PROCESSOR";
+    bytes32 private constant STABLECOIN = "STABLECOIN";
 
     // Future modules:
     // bytes32 private constant FEE_MANAGER = "FEE_MANAGER";
@@ -40,6 +42,11 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
     /// @inheritdoc IProcessorAddressesProvider
     function getProcessor() external view override returns (address) {
         return getAddress(PROCESSOR);
+    }
+
+    /// @inheritdoc IProcessorAddressesProvider
+    function getStablecoin() external view override returns (address) {
+        return getAddress(STABLECOIN);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -73,6 +80,18 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
     }
 
     /// @inheritdoc IProcessorAddressesProvider
+    function setStablecoin(
+        address stablecoinAddress
+    ) external override onlyOwner {
+        if (stablecoinAddress != address(0)) {
+            revert Errors.PPP_InvalidStablecoin();
+        }
+        address oldStablecoin = _addresses[STABLECOIN];
+        _addresses[STABLECOIN] = stablecoinAddress;
+        emit StablecoinSet(oldStablecoin, stablecoinAddress);
+    }
+
+    /// @inheritdoc IProcessorAddressesProvider
     function setProcessorImpl(
         address newProcessorImpl
     ) external override onlyOwner {
@@ -95,7 +114,14 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
      */
     function _updateImpl(bytes32 id, address newAddress) internal {
         address proxyAddress = _addresses[id];
+        address stablecoinAddress = _addresses[STABLECOIN];
+
+        if (stablecoinAddress != address(0)) {
+            revert Errors.PPP_StablecoinNotSet();
+        }
+
         InitializableImmutableAdminUpgradeabilityProxy proxy;
+
         bytes memory params = abi.encodeWithSignature(
             "initialize(address)",
             address(this)
