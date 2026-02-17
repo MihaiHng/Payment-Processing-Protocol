@@ -89,11 +89,30 @@ forge script script/DeployProcessor.s.sol \
     --broadcast
  */
 
+/**
+ Usage Examples
+
+ # Example 1: No env var → Uses default USDC for the chain
+forge script script/DeployProcessor.s.sol --rpc-url $BASE_RPC_URL --broadcast
+# Result: stablecoinAddress = 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 (Base USDC)
+
+
+# Example 2: Set STABLECOIN env var → Uses provided address
+STABLECOIN=0xdAC17F958D2ee523a2206206994597C13D831ec7 \
+forge script script/DeployProcessor.s.sol --rpc-url $ETH_RPC_URL --broadcast
+# Result: stablecoinAddress = 0xdAC17F958D2ee523a2206206994597C13D831ec7 (USDT)
+
+
+# Example 3: Export first, then run
+export STABLECOIN=0x6B175474E89094C44Da98b954EesdeadE3C4Beba
+forge script script/DeployProcessor.s.sol --rpc-url $ETH_RPC_URL --broadcast
+# Result: stablecoinAddress = 0x6B175474E89094C44Da98b954EeadeadE3C4Beba (DAI)
+ */
+
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.33;
 
 import {Script, console} from "forge-std/Script.sol";
-//import {Processor} from "../src/protocol/processor/Processor.sol";
 import {ProcessorInstance} from "../src/instances/ProcessorInstance.sol";
 import {ProcessorAddressesProvider} from "../src/protocol/configuration/ProcessorAddressesProvider.sol";
 import {IProcessorAddressesProvider} from "../src/interfaces/IProcessorAddressesProvider.sol";
@@ -101,9 +120,6 @@ import {IProcessorAddressesProvider} from "../src/interfaces/IProcessorAddresses
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract DeployProcessor is Script {
-    //IERC20 public usdc;
-    //uint256 public constant initialAmount = 1000e6;
-
     // Deployed contract addresses
     ProcessorInstance public processorImplementation;
     ProcessorAddressesProvider public addressesProvider;
@@ -111,21 +127,22 @@ contract DeployProcessor is Script {
     // Proxy addresses (what users interact with)
     address public processorProxy;
 
-    /**
-     * # 1. Approve USDC to contract (needs to happen before or during deploy)
-     * # 2. Deploy contract with constructor args
-     * # 3. Contract receives initial funding via transferFrom
-     * # 4. User can call fundSmartContract() for additional funding
-     */
-
     function setUp() public {}
 
     function run() public returns (address processor) {
-        console.log("Starting Aave V3 deployment...");
+        // User can override stablecoin via environment variable
+        address stablecoinAddress = vm.envOr(
+            "STABLECOIN",
+            _getDefaultStablecoin()
+        );
+
+        console.log("Starting Payment Processor deployment...");
+        console.log("Chain ID:", block.chainid);
+        console.log("Stablecoin:", stablecoinAddress);
 
         vm.startBroadcast();
 
-        processor = _deployCore(msg.sender);
+        processor = _deployCore(msg.sender, stablecoinAddress);
 
         vm.stopBroadcast();
 
@@ -136,9 +153,14 @@ contract DeployProcessor is Script {
 
     /**
      * @notice Deploy all core contracts
+     * @param admin User that deploys and owns Payment Protocol
+     * @param stablecoinAddress Stablecoin address used with the Payment Protocol
      * @return processorProxy The address of the Processor proxy (user-facing)
      */
-    function _deployCore(address admin) internal returns (address) {
+    function _deployCore(
+        address admin,
+        address stablecoinAddress
+    ) internal returns (address) {
         // Step 1. Deploy ProcessorAddressesProvider
         // This is the central registry and proxy factory
 
