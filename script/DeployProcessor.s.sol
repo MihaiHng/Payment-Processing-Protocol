@@ -1,36 +1,53 @@
 /**
  * ## Deployment Flow
- * 
-_deployCore(admin)
-       │
-       ▼
-┌──────────────────────────────────────┐
-│ Step 1: Deploy AddressesProvider     │
-│ new ProcessorAddressesProvider(admin)│
-└──────────────────┬───────────────────┘
-                   │
-                   ▼
-┌──────────────────────────────────────┐
-│ Step 2: Deploy Implementation        │
-│ new ProcessorInstance(provider)      │
-└──────────────────┬───────────────────┘
-                   │
-                   ▼
-┌──────────────────────────────────────┐
-│ Step 3: Register → Creates Proxy     │
-│ setProcessorImpl(implementation)     │
-│                                      │
-│ Internally:                          │
-│  • Creates proxy                     │
-│  • Sets implementation               │
-│  • Calls initialize()                │
-└──────────────────┬───────────────────┘
-                   │
-                   ▼
-┌──────────────────────────────────────┐
-│ Return: processorProxy               │
-│ (This is what users interact with)   │
-└──────────────────────────────────────┘
+ *
+ * * _deployCore(admin, stablecoinAddress)
+ *
+ * ┌──────────────────────────────────────┐
+ * │ Step 1: Deploy AddressesProvider     │
+ * │ new ProcessorAddressesProvider(admin)│
+ * └──────────────────┬───────────────────┘
+ *                    │
+ *                    ▼
+ * ┌──────────────────────────────────────┐
+ * │ Step 2: Set Stablecoin               │
+ * │ setStablecoin(stablecoinAddress)     │
+ * │                                      │
+ * │ User chooses: USDC, USDT, DAI, etc.  │
+ * │ Stored in: _addresses[STABLECOIN]    │
+ * └──────────────────┬───────────────────┘
+ *                    │
+ *                    ▼
+ * ┌──────────────────────────────────────┐
+ * │ Step 3: Deploy Implementation        │
+ * │ new ProcessorInstance(provider)      │
+ * │                                      │
+ * │ Only sets immutable ADDRESSES_PROVIDER│
+ * └──────────────────┬───────────────────┘
+ *                    │
+ *                    ▼
+ * ┌──────────────────────────────────────┐
+ * │ Step 4: Register → Creates Proxy     │
+ * │ setProcessorImpl(implementation)     │
+ * │                                      │
+ * │ Internally (_updateImpl):            │
+ * │  • Creates proxy                     │
+ * │  • Sets implementation               │
+ * │  • Calls initialize(provider,        │
+ * │         stablecoinAddress)           │
+ * │  • Stablecoin stored in proxy storage│
+ * └──────────────────┬───────────────────┘
+ *                    │
+ *                    ▼
+ * ┌──────────────────────────────────────┐
+ * │ Return: processorProxy               │
+ * │ (This is what users interact with)   │
+ * │                                      │
+ * │ Proxy has:                           │
+ * │  • stablecoin = user's choice        │
+ * │  • totalBalance = 0                  │
+ * │  • Ready for fundProcessor()         │
+ * └──────────────────────────────────────┘
  */
 
 /**
@@ -109,6 +126,8 @@ forge script script/DeployProcessor.s.sol --rpc-url $ETH_RPC_URL --broadcast
 # Result: stablecoinAddress = 0x6B175474E89094C44Da98b954EeadeadE3C4Beba (DAI)
  */
 
+// forge script script/DeployProcessor.s.sol --rpc-url $SEPOLIA_RPC_URL --account Test01 --broadcast
+
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.33;
 
@@ -117,7 +136,7 @@ import {ProcessorInstance} from "../src/instances/ProcessorInstance.sol";
 import {ProcessorAddressesProvider} from "../src/protocol/configuration/ProcessorAddressesProvider.sol";
 import {IProcessorAddressesProvider} from "../src/interfaces/IProcessorAddressesProvider.sol";
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+//import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract DeployProcessor is Script {
     // Deployed contract addresses
@@ -153,7 +172,7 @@ contract DeployProcessor is Script {
 
     /**
      * @notice Deploy all core contracts
-     * @param admin User that deploys and owns Payment Protocol
+     * @param admin Address that deploys and owns Payment Protocol
      * @param stablecoinAddress Stablecoin address used with the Payment Protocol
      * @return processorProxy The address of the Processor proxy (user-facing)
      */
@@ -170,31 +189,95 @@ contract DeployProcessor is Script {
             address(addressesProvider)
         );
 
-        // Step 2. Deploy ProcessorInstance (Implementation)
+        // Step 2: Set stablecoin (user's choice!)
+        addressesProvider.setStablecoin(stablecoinAddress);
+        console.log("2. Stablecoin set:", stablecoinAddress);
+
+        // Step 3. Deploy ProcessorInstance (Implementation)
         processorImplementation = new ProcessorInstance(
-            addressesProvider,
-            address(usdc),
-            initialAmount
+            IProcessorAddressesProvider(address(addressesProvider))
         );
 
         console.log(
-            "2. ProcessorInstance (implementation) deployed:",
+            "3. ProcessorInstance (implementation) deployed:",
             address(processorImplementation)
         );
 
-        // Step 3. Register Implementation → Creates Proxy
+        // Step 4. Register Implementation → Creates Proxy
         addressesProvider.setProcessorImpl(address(processorImplementation));
 
         processorProxy = addressesProvider.getProcessor();
-        console.log("3. Processor Proxy created:", processorProxy);
+        console.log("4. Processor Proxy created:", processorProxy);
 
         return processorProxy;
+    }
+
+    function _getDefaultStablecoin() internal view returns (address) {
+        uint256 chainId = block.chainid;
+
+        /*//////////////////////////////////////////////////////////////
+                              MAINNETS
+        //////////////////////////////////////////////////////////////*/
+
+        // Ethereum Mainnet
+        if (chainId == 1) return 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+
+        // Base
+        if (chainId == 8453) return 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913;
+
+        // Polygon PoS
+        if (chainId == 137) return 0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359;
+
+        // Arbitrum One
+        if (chainId == 42161) return 0xaf88d065e77c8cC2239327C5EDb3A432268e5831;
+
+        // Optimism
+        if (chainId == 10) return 0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85;
+
+        // Avalanche C-Chain
+        if (chainId == 43114) return 0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E;
+
+        // BNB Smart Chain
+        if (chainId == 56) return 0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d;
+
+        /*//////////////////////////////////////////////////////////////
+                              TESTNETS
+        //////////////////////////////////////////////////////////////*/
+
+        // Sepolia (Ethereum testnet)
+        if (chainId == 11155111)
+            return 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238;
+
+        // Base Sepolia
+        if (chainId == 84532) return 0x036CbD53842c5426634e7929541eC2318f3dCF7e;
+
+        // Arbitrum Sepolia
+        if (chainId == 421614)
+            return 0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d;
+
+        // Polygon Amoy (testnet)
+        if (chainId == 80002) return 0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582;
+
+        /*//////////////////////////////////////////////////////////////
+                              LOCAL
+        //////////////////////////////////////////////////////////////*/
+
+        // Anvil / Hardhat local (deploy MockUSDC or use fork)
+        if (chainId == 31337)
+            revert("Deploy MockUSDC or use --fork-url for local testing");
+
+        revert("Unsupported chain - set STABLECOIN env var");
     }
 
     function _logDeployment() internal view {
         console.log("\n========================================");
         console.log("DEPLOYMENT SUMMARY");
         console.log("========================================");
+        console.log("Chain ID:                  ", block.chainid);
+        console.log(
+            "Stablecoin:                ",
+            addressesProvider.getStablecoin()
+        );
         console.log("Processor AddressesProvider:", address(addressesProvider));
         console.log("Processor (Proxy):         ", processorProxy);
         console.log(

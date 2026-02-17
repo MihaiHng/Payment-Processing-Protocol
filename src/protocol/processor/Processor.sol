@@ -65,10 +65,10 @@ abstract contract Processor is
     /*//////////////////////////////////////////////////////////////
                             MODIFIERS
     //////////////////////////////////////////////////////////////*/
-    modifier onlyPaymentProcessor() {
-        require(msg.sender == owner(), Errors.PPP__CallerNotProcessor());
-        _;
-    }
+    // modifier onlyPaymentProcessor() {
+    //     require(msg.sender == owner(), Errors.PPP__CallerNotProcessor());
+    //     _;
+    // }
 
     constructor(IProcessorAddressesProvider provider) Ownable(msg.sender) {
         ADDRESSES_PROVIDER = provider;
