@@ -126,7 +126,10 @@ forge script script/DeployProcessor.s.sol --rpc-url $ETH_RPC_URL --broadcast
 # Result: stablecoinAddress = 0x6B175474E89094C44Da98b954EeadeadE3C4Beba (DAI)
  */
 
+// ========================================================================================================================
+// RUN THIS TO DEPLOY!
 // forge script script/DeployProcessor.s.sol --rpc-url $SEPOLIA_RPC_URL --account Test01 --broadcast
+// ========================================================================================================================
 
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.33;

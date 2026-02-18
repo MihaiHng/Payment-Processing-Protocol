@@ -29,7 +29,7 @@ contract ProcessorInstance is Processor {
         IProcessorAddressesProvider _provider,
         address _stablecoin
     ) external virtual override initializer {
-        if (address(_provider) == address(ADDRESSES_PROVIDER)) {
+        if (address(_provider) != address(ADDRESSES_PROVIDER)) {
             revert Errors.PPP_InvalidAddressesProvider();
         }
 

@@ -123,7 +123,7 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
         InitializableImmutableAdminUpgradeabilityProxy proxy;
 
         bytes memory params = abi.encodeWithSignature(
-            "initialize(address)",
+            "initialize(address,address)",
             address(this),
             stablecoinAddress
         );
