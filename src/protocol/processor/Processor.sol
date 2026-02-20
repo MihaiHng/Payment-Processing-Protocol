@@ -106,6 +106,7 @@ abstract contract Processor is
         );
     }
 
+    /// @inheritdoc IProcessor
     function withdrawFromProcessor(
         uint256 amount
     ) external virtual override nonReentrant onlyOwner {
@@ -116,6 +117,7 @@ abstract contract Processor is
         );
     }
 
+    /// @inheritdoc IProcessor
     function withdrawAllFromProcessor()
         external
         virtual
@@ -128,6 +130,7 @@ abstract contract Processor is
         );
     }
 
+    /// @inheritdoc IProcessor
     function extractPaymentData()
         external
         virtual
@@ -137,6 +140,7 @@ abstract contract Processor is
         returns (DataTypes.PaymentData memory paymentData)
     {}
 
+    /// @inheritdoc IProcessor
     function processPayment(
         uint256 paymentId,
         address seller,
@@ -152,24 +156,24 @@ abstract contract Processor is
     /*//////////////////////////////////////////////////////////////
                         GETTER/VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    /**
-     * @notice Get the current balance of the processor
-     */
-    function getBalance() external view returns (uint256) {
+    /// @inheritdoc IProcessor
+    function getBalance() external view virtual override returns (uint256) {
         return totalBalance;
     }
 
-    /**
-     * @notice Get the actual stablecoin balance in the contract (for verification)
-     */
-    function getActualBalance() external view returns (uint256) {
+    /// @inheritdoc IProcessor
+    function getActualBalance()
+        external
+        view
+        virtual
+        override
+        returns (uint256)
+    {
         return stablecoin.balanceOf(address(this));
     }
 
-    /**
-     * @notice Get the stablecoin address used by the Processor
-     */
-    function getStablecoin() external view returns (address) {
+    /// @inheritdoc IProcessor
+    function getStablecoin() external view virtual override returns (address) {
         return address(stablecoin);
     }
 }

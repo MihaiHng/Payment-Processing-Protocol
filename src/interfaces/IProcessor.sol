@@ -70,4 +70,25 @@ interface IProcessor {
         address item,
         uint256 price
     ) external returns (bool);
+
+    /*//////////////////////////////////////////////////////////////
+                        GETTER/VIEW FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+    /**
+     * @notice Get the current stablecoin balance of the processor
+     * @return The stablecoin balance of the Processor as stored in a state variable
+     */
+    function getBalance() external view returns (uint256);
+
+    /**
+     * @notice Get the actual stablecoin balance in the contract (for verification)
+     * @return The stablecoin balance of the Processor returned by balanceOf()
+     */
+    function getActualBalance() external view returns (uint256);
+
+    /**
+     * @notice Get the stablecoin address used by the Processor
+     * @return The address of the stablecoin used by the Processor
+     */
+    function getStablecoin() external view returns (address);
 }
