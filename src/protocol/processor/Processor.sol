@@ -97,7 +97,7 @@ abstract contract Processor is
         uint256 amount
     ) external virtual override nonReentrant onlyOwner {
         if (address(stablecoin) == address(0)) {
-            revert Errors.PPP_StablecoinNotSet();
+            revert Errors.PPP__StablecoinNotSet();
         }
         totalBalance = FundProcessorLogic.executeFundProcessor(
             stablecoin,

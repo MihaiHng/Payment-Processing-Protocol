@@ -14,7 +14,8 @@ library Errors {
     // error PPP__InvalidUser();
     error PPP__CallerNotProcessor();
     error PPP__InsufficientBalance();
-    error PPP_InvalidAddressesProvider();
-    error PPP_InvalidStablecoin();
-    error PPP_StablecoinNotSet();
+    error PPP__InvalidAddressesProvider();
+    error PPP__InvalidStablecoin();
+    error PPP__StablecoinNotSet();
+    //error PPP__OnlyOwner();
 }

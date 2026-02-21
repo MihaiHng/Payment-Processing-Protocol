@@ -84,7 +84,7 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
         address stablecoinAddress
     ) external override onlyOwner {
         if (stablecoinAddress == address(0)) {
-            revert Errors.PPP_InvalidStablecoin();
+            revert Errors.PPP__InvalidStablecoin();
         }
         address oldStablecoin = _addresses[STABLECOIN];
         _addresses[STABLECOIN] = stablecoinAddress;
@@ -117,7 +117,7 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
         address stablecoinAddress = _addresses[STABLECOIN];
 
         if (stablecoinAddress == address(0)) {
-            revert Errors.PPP_StablecoinNotSet();
+            revert Errors.PPP__StablecoinNotSet();
         }
 
         InitializableImmutableAdminUpgradeabilityProxy proxy;

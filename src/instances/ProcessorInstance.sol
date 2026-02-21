@@ -30,11 +30,11 @@ contract ProcessorInstance is Processor {
         address _stablecoin
     ) external virtual override initializer {
         if (address(_provider) != address(ADDRESSES_PROVIDER)) {
-            revert Errors.PPP_InvalidAddressesProvider();
+            revert Errors.PPP__InvalidAddressesProvider();
         }
 
         if (_stablecoin == address(0)) {
-            revert Errors.PPP_InvalidStablecoin();
+            revert Errors.PPP__InvalidStablecoin();
         }
 
         stablecoin = IERC20(_stablecoin);

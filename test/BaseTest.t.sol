@@ -215,8 +215,8 @@ contract BaseTest is Test {
     //     );
     // }
 
-    /// @notice Assert user USDC balance
-    function assertUserBalance(address user, uint256 expected) internal view {
-        assertEq(usdc.balanceOf(user), expected, "User USDC balance mismatch");
-    }
+    // /// @notice Assert user USDC balance
+    // function assertUserBalance(address user, uint256 expected) internal view {
+    //     assertEq(usdc.balanceOf(user), expected, "User USDC balance mismatch");
+    // }
 }
