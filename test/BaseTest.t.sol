@@ -8,6 +8,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 // Mocks
 import {MockUSDC} from "./mocks/MockUSDC.sol";
+import {MockProcessorInstanceV2} from "./mocks/MockProcessorInstanceV2.sol";
 
 // Protocol contracts
 import {ProcessorAddressesProvider} from "../src/protocol/configuration/ProcessorAddressesProvider.sol";
@@ -72,6 +73,12 @@ contract BaseTest is Test {
         bytes32 indexed id,
         address indexed oldAddress,
         address indexed newAddress
+    );
+    event AddressSetAsProxy(
+        bytes32 indexed id,
+        address indexed proxyAddress,
+        address indexed oldImplementationAddress,
+        address newImplementationAddress
     );
 
     /*//////////////////////////////////////////////////////////////
