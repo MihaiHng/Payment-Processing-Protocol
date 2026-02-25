@@ -353,6 +353,7 @@ contract TestProcessorAddressesProvider is BaseTest {
         processor().fundProcessor(FUND_AMOUNT);
 
         uint256 balanceBefore = processor().getBalance();
+        console.log("Balance before: ", balanceBefore);
 
         // Deploy new implementation
         MockProcessorInstanceV2 newImpl = new MockProcessorInstanceV2(

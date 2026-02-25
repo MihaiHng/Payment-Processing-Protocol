@@ -36,7 +36,7 @@ abstract contract VersionedInitializable {
     /**
      * @dev Modifier to use in the initializer function of a contract.
      */
-    modifier initializer() {
+    modifier versionedInitializer() {
         uint256 revision = getRevision();
         require(
             initializing ||

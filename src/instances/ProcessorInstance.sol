@@ -28,7 +28,7 @@ contract ProcessorInstance is Processor {
     function initialize(
         IProcessorAddressesProvider _provider,
         address _stablecoin
-    ) external virtual override initializer {
+    ) external virtual override versionedInitializer {
         if (address(_provider) != address(ADDRESSES_PROVIDER)) {
             revert Errors.PPP__InvalidAddressesProvider();
         }
@@ -36,6 +36,8 @@ contract ProcessorInstance is Processor {
         if (_stablecoin == address(0)) {
             revert Errors.PPP__InvalidStablecoin();
         }
+
+        _transferOwnership(_provider.owner());
 
         stablecoin = IERC20(_stablecoin);
     }

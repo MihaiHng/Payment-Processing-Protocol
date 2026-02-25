@@ -74,6 +74,12 @@ interface IProcessorAddressesProvider {
                             FUNCTIONS
     //////////////////////////////////////////////////////////////*/
     /**
+     * @notice Returns the owner of the AddressesProvider
+     * @return The owner address
+     */
+    function owner() external view returns (address);
+
+    /**
      * @notice Returns an address by its identifier.
      * @dev The returned address might be an EOA or a contract, potentially proxied
      * @dev It returns ZERO if there is no registered address with the given id

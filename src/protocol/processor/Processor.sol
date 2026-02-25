@@ -34,9 +34,7 @@ import {Errors} from "../../libraries/helpers/Errors.sol";
 import {VersionedInitializable} from "../../misc/upgradeability/VersionedInitializable.sol";
 
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-// import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-// import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -72,7 +70,7 @@ abstract contract Processor is
     //     _;
     // }
 
-    constructor(IProcessorAddressesProvider provider) Ownable(msg.sender) {
+    constructor(IProcessorAddressesProvider provider) /*Ownable(msg.sender)*/ {
         ADDRESSES_PROVIDER = provider;
     }
 

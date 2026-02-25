@@ -24,15 +24,27 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
 
     /**
      * @dev Constructor.
-     * @param owner The owner address of this contract.
+     * @param _owner The owner address of this contract.
      */
-    constructor(address owner /*, string memory versionId*/) Ownable(owner) {
+    constructor(address _owner /*, string memory versionId*/) Ownable(_owner) {
         // _setVersionId(versionId); // Possible future development, different processor for different projects and needs
     }
 
     /*//////////////////////////////////////////////////////////////
                             VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////*/
+    /**
+     * @notice Returns the owner of the contract
+     * @dev Overrides both Ownable and IProcessorAddressesProvider
+     */
+    function owner()
+        public
+        view
+        override(Ownable, IProcessorAddressesProvider)
+        returns (address)
+    {
+        return super.owner(); // Calls Ownable's owner()
+    }
 
     /// @inheritdoc IProcessorAddressesProvider
     function getAddress(bytes32 id) public view override returns (address) {
