@@ -331,6 +331,19 @@ contract TestProcessorAddressesProvider is BaseTest {
                       UPGRADE PROCESSOR TESTS
     //////////////////////////////////////////////////////////////*/
 
+    // function test_SetProcessorImpl_RevertsIfPROCESSOR_REVISIONTheSame() public asOwner {}
+
+    function test_SetProcessorImpl_RevertsIfSameRevision() public asOwner {
+        // Try to "upgrade" with same V1 revision
+        ProcessorInstance sameRevisionImpl = new ProcessorInstance(
+            IProcessorAddressesProvider(address(addressesProvider))
+        );
+
+        // Should revert because revision 1 is not > 1
+        vm.expectRevert("Contract instance has already been initialized");
+        addressesProvider.setProcessorImpl(address(sameRevisionImpl));
+    }
+
     function test_SetProcessorImpl_UpgradesExistingProxy() public asOwner {
         // Get current proxy
         address proxyBefore = addressesProvider.getProcessor();
