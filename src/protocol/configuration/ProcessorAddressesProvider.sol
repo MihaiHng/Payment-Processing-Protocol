@@ -24,9 +24,11 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
 
     /**
      * @dev Constructor.
-     * @param _owner The owner address of this contract.
+     * @param initOwner The owner address of this contract.
      */
-    constructor(address _owner /*, string memory versionId*/) Ownable(_owner) {
+    constructor(
+        address initOwner /*, string memory versionId*/
+    ) Ownable(initOwner) {
         // _setVersionId(versionId); // Possible future development, different processor for different projects and needs
     }
 
