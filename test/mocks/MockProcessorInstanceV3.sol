@@ -7,11 +7,11 @@ import {Errors} from "../../src/libraries/helpers/Errors.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
- * @title ProcessorInstanceV2
- * @notice Mock V2 implementation for testing upgrades
+ * @title ProcessorInstanceV3
+ * @notice Mock V3 implementation for testing upgrades
  */
-contract MockProcessorInstanceV2 is Processor {
-    uint256 public constant PROCESSOR_REVISION = 2;
+contract MockProcessorInstanceV3 is Processor {
+    uint256 public constant PROCESSOR_REVISION = 3;
 
     constructor(IProcessorAddressesProvider provider) Processor(provider) {}
 
@@ -44,7 +44,7 @@ contract MockProcessorInstanceV2 is Processor {
         return PROCESSOR_REVISION;
     }
 
-    function v2Feature() external pure returns (string memory) {
-        return "I am V2!";
+    function v3Feature() external pure returns (string memory) {
+        return "I am V3!";
     }
 }
