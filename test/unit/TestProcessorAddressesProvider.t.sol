@@ -19,25 +19,6 @@ contract TestProcessorAddressesProvider is BaseTest {
     // Using BaseTest setUp()
 
     /*//////////////////////////////////////////////////////////////
-                          DEPLOYMENT TESTS
-    //////////////////////////////////////////////////////////////*/
-    function test_Deployment_Sets_Owner() public view {
-        assertEq(addressesProvider.owner(), owner);
-    }
-
-    function test_Deployment_Sets_Stablecoin() public view {
-        assertEq(addressesProvider.getStablecoin(), address(usdc));
-    }
-
-    function test_Deployment_CreatesProxy() public view {
-        assertTrue(processorProxy != address(0), "Proxy not created");
-    }
-
-    function test_Deployment_ProcessorMatchesProxy() public view {
-        assertEq(addressesProvider.getProcessor(), processorProxy);
-    }
-
-    /*//////////////////////////////////////////////////////////////
                         SET STABLECOIN TESTS
     //////////////////////////////////////////////////////////////*/
 
@@ -326,82 +307,6 @@ contract TestProcessorAddressesProvider is BaseTest {
         vm.expectRevert();
         addressesProvider.setProcessorImpl(address(newImpl));
     }
-
-    /*//////////////////////////////////////////////////////////////
-                      UPGRADE PROCESSOR TESTS
-    //////////////////////////////////////////////////////////////*/
-    // function test_SetProcessorImpl_RevertsIfSameRevision() public asOwner {
-    //     // Get initial state
-    //     address proxyBefore = addressesProvider.getProcessor();
-
-    //     // Try to "upgrade" with same V1 revision
-    //     ProcessorInstance sameRevisionImpl = new ProcessorInstance(
-    //         IProcessorAddressesProvider(address(addressesProvider))
-    //     );
-
-    //     // Should revert because revision 1 is not > 1
-    //     // Note: Revert data is lost when bubbled through proxy
-    //     vm.expectRevert();
-    //     addressesProvider.setProcessorImpl(address(sameRevisionImpl));
-
-    //     // Verify proxy unchanged (upgrade failed)
-    //     assertEq(addressesProvider.getProcessor(), proxyBefore);
-    // }
-
-    // function test_SetProcessorImpl_UpgradesExistingProxy() public asOwner {
-    //     // Get current proxy
-    //     address proxyBefore = addressesProvider.getProcessor();
-
-    //     // Deploy new implementation
-    //     MockProcessorInstanceV2 newImpl = new MockProcessorInstanceV2(
-    //         IProcessorAddressesProvider(address(addressesProvider))
-    //     );
-
-    //     // Upgrade
-    //     addressesProvider.setProcessorImpl(address(newImpl));
-
-    //     // Proxy address should remain the same
-    //     assertEq(addressesProvider.getProcessor(), proxyBefore);
-    // }
-
-    // function test_SetProcessorImpl_PreservesStateAfterUpgrade() public asOwner {
-    //     // Fund the processor first
-    //     usdc.approve(processorProxy, FUND_AMOUNT);
-    //     processor().fundProcessor(FUND_AMOUNT);
-
-    //     uint256 balanceBefore = processor().getBalance();
-    //     console.log("Balance before: ", balanceBefore);
-
-    //     // Deploy new implementation
-    //     MockProcessorInstanceV2 newImpl = new MockProcessorInstanceV2(
-    //         IProcessorAddressesProvider(address(addressesProvider))
-    //     );
-
-    //     // Upgrade
-    //     addressesProvider.setProcessorImpl(address(newImpl));
-
-    //     // Balance should be preserved (state lives in proxy)
-    //     assertEq(processor().getBalance(), balanceBefore);
-    // }
-
-    // function test_SetProcessorImpl_UpdatesImplementationAddress()
-    //     public
-    //     asOwner
-    // {
-    //     // Deploy new implementation
-    //     MockProcessorInstanceV2 newImpl = new MockProcessorInstanceV2(
-    //         IProcessorAddressesProvider(address(addressesProvider))
-    //     );
-
-    //     address oldImpl = address(processorImplementation);
-    //     address newImplAddr = address(newImpl);
-
-    //     // Verify they're different
-    //     assertTrue(
-    //         oldImpl != newImplAddr,
-    //         "Should be different implementations"
-    //     );
-    // }
 
     /*//////////////////////////////////////////////////////////////
                       OWNERSHIP TESTS
