@@ -96,14 +96,6 @@ contract ProcessorTest is BaseTest {
     }
 
     function test_FundProcessor_RevertsIfInsufficientBalance() public {
-        address poorUser = makeAddr("poorUser");
-
-        // Transfer ownership to poorUser for this test
-        // vm.prank(owner);
-        // Note: You'd need transferOwnership function
-        // processor().transferOwnership(poorUser);
-
-        // For now, just test with owner who has no USDC
         vm.startPrank(owner);
         usdc.transfer(user1, usdc.balanceOf(owner)); // Send all USDC away
         usdc.approve(processorProxy, FUND_AMOUNT);
