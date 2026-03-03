@@ -204,26 +204,26 @@ contract BaseTest is Test {
                           ASSERTION HELPERS
     //////////////////////////////////////////////////////////////*/
 
-    // /// @notice Assert processor balance matches expected
-    // function assertProcessorBalance(uint256 expected) internal view {
-    //     assertEq(
-    //         processor().getBalance(),
-    //         expected,
-    //         "Processor balance mismatch"
-    //     );
-    // }
+    /// @notice Assert processor balance matches expected
+    function assertProcessorBalance(uint256 expected) internal view {
+        assertEq(
+            processor().getBalance(),
+            expected,
+            "Processor balance mismatch"
+        );
+    }
 
-    // /// @notice Assert processor actual USDC balance matches expected
-    // function assertProcessorActualBalance(uint256 expected) internal view {
-    //     assertEq(
-    //         processor().getActualBalance(),
-    //         expected,
-    //         "Processor actual USDC balance mismatch"
-    //     );
-    // }
+    /// @notice Assert processor actual USDC balance matches expected
+    function assertProcessorActualBalance(uint256 expected) internal view {
+        assertEq(
+            processor().getActualBalance(),
+            expected,
+            "Processor actual USDC balance mismatch"
+        );
+    }
 
-    // /// @notice Assert user USDC balance
-    // function assertUserBalance(address user, uint256 expected) internal view {
-    //     assertEq(usdc.balanceOf(user), expected, "User USDC balance mismatch");
-    // }
+    /// @notice Assert user USDC balance
+    function assertUserBalance(address user, uint256 expected) internal view {
+        assertEq(usdc.balanceOf(user), expected, "User USDC balance mismatch");
+    }
 }

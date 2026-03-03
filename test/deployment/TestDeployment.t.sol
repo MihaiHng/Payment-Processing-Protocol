@@ -2,13 +2,13 @@
 pragma solidity 0.8.33;
 
 import {Test, console, console2} from "forge-std/Test.sol";
-import {BaseTest} from "../../BaseTest.t.sol";
-import {ProcessorAddressesProvider} from "../../../src/protocol/configuration/ProcessorAddressesProvider.sol";
-import {ProcessorInstance} from "../../../src/instances/ProcessorInstance.sol";
-import {MockProcessorInstanceV2} from "../../mocks/MockProcessorInstanceV2.sol";
-import {IProcessorAddressesProvider} from "../../../src/interfaces/IProcessorAddressesProvider.sol";
-import {IProcessor} from "../../../src/interfaces/IProcessor.sol";
-import {Errors} from "../../../src/libraries/helpers/Errors.sol";
+import {BaseTest} from "../BaseTest.t.sol";
+import {ProcessorAddressesProvider} from "src/protocol/configuration/ProcessorAddressesProvider.sol";
+import {ProcessorInstance} from "src/instances/ProcessorInstance.sol";
+import {MockProcessorInstanceV2} from "../mocks/MockProcessorInstanceV2.sol";
+import {IProcessorAddressesProvider} from "src/interfaces/IProcessorAddressesProvider.sol";
+import {IProcessor} from "src/interfaces/IProcessor.sol";
+import {Errors} from "src/libraries/helpers/Errors.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TestProcessorAddressesProvider is BaseTest {
