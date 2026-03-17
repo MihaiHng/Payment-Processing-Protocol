@@ -72,4 +72,6 @@ Slither Report:
 
 ## Future Improvements
 
+1. In future iterations which will likely increase in complexity, consider using Chainlink Runtine Environment (CRE), to simplify the workflow between the different components of the system, onchain reads, offchain reads, onchain writes etc.
+Opposed to the more simple current approach used for this MVP, Function + Automation
 
