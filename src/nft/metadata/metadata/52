@@ -1,0 +1,23 @@
+{
+  "name": "Champions League Final 2026 - Ticket #52",
+  "description": "Official match ticket for Champions League Final 2026 at Allianz Arena, Munich.",
+  "image": "ipfs://bafkreigusj7a357qunh2balemajtab5ksoq2fssqu3qryh7la7w3xolgjq",
+  "attributes": [
+    {
+      "trait_type": "Event",
+      "value": "Champions League Final 2026"
+    },
+    {
+      "trait_type": "Date",
+      "value": "May 30, 2026"
+    },
+    {
+      "trait_type": "Time",
+      "value": "21:00 CET"
+    },
+    {
+      "trait_type": "Venue",
+      "value": "Allianz Arena, Munich"
+    }
+  ]
+}
