@@ -37,6 +37,7 @@ contract ProcessorInstance is Processor {
             revert Errors.PPP__InvalidStablecoin();
         }
 
+        // aderyn-ignore-next-line(reentrancy-state-change)
         _transferOwnership(_provider.owner());
 
         stablecoin = IERC20(_stablecoin);
