@@ -33,7 +33,6 @@ contract PlatformNFT is ERC721, Ownable {
     //////////////////////////////////////////////////////////////*/
 
     event TicketMinted(uint256 indexed tokenId, address indexed to);
-    event TicketUsed(uint256 indexed tokenId);
     event BatchMinted(
         uint256 indexed startId,
         uint256 indexed endId,
