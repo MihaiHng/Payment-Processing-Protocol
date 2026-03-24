@@ -8,14 +8,32 @@ pragma solidity 0.8.33;
  * @notice Defines different error messages emitted by the contracts of the protocol
  */
 library Errors {
-    error PPP__InvalidAddress();
-    error PPP__InvalidAmount();
-    error PPP__NothingToWithdraw();
-    // error PPP__InvalidUser();
-    error PPP__CallerNotProcessor();
-    error PPP__InsufficientBalance();
+    /*//////////////////////////////////////////////////////////////
+                        ADDRESSES PROVIDER ERRORS
+    //////////////////////////////////////////////////////////////*/
+
     error PPP__InvalidAddressesProvider();
-    error PPP__InvalidStablecoin();
+
+    /*//////////////////////////////////////////////////////////////
+                          PROCESSOR ERRORS
+    //////////////////////////////////////////////////////////////*/
+
     error PPP__StablecoinNotSet();
-    //error PPP__OnlyOwner();
+    error PPP__InvalidStablecoin();
+    error PPP__NothingToWithdraw();
+    error PPP__InsufficientBalance();
+    error PPP__TransferFailed();
+    error PPP__ZeroAmount();
+
+    /*//////////////////////////////////////////////////////////////
+                        MARKETPLACE ERRORS
+    //////////////////////////////////////////////////////////////*/
+
+    error PPP__InvalidSeller();
+    error PPP__InvalidNFTContract();
+    error PPP__InvalidBuyer();
+    error PPP__InvalidAmount();
+    error PPP__SellerNotRegistered();
+    error PPP__NFTContractNotSet();
+    error PPP__PaymentAlreadyProcessed();
 }
