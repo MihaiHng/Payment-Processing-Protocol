@@ -25,6 +25,14 @@ interface IProcessor {
         uint256 indexed totalBalance
     );
     event ProcessorWithdrawAll(address user, uint256 indexed totalWithdraw);
+    event SellerRegistered(address indexed seller, address indexed nftContract);
+    event PaymentProcessed(
+        bytes32 indexed paymentId,
+        address indexed buyer,
+        uint256 indexed tokenId,
+        uint256 amount,
+        address seller
+    );
 
     /*//////////////////////////////////////////////////////////////
                             FUNCTIONS

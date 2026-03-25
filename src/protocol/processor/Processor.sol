@@ -21,7 +21,9 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 /**
  * @title Payment Processor
  * @author mhng
+ * @notice Fiat-to-Crypto Payment Processor
  * @dev Supports any ERC20 stablecoin (USDC, USDT, DAI, etc.)
+ * @dev Handles atomic USDC + NFT transfers on payment confirmation
  */
 abstract contract Processor is
     VersionedInitializable,
@@ -63,7 +65,6 @@ abstract contract Processor is
      * @notice Initializes the Processor with the addresses provider address and the set stablecoin address.
      * @dev Function is invoked by the proxy contract when the Processor contract is added to the
      * ProcessorAddressesProvider.
-     * @dev Caching the address of the ProcessorAddressesProvider in order to reduce gas consumption on subsequent operations
      * @param _provider The address of the ProcessorAddressesProvider
      * @param _stablecoin The stablecoin address (USDC, USDT, DAI, etc.)
      */
