@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.33;
 
+import {DataTypes} from "../libraries/types/DataTypes.sol";
+
 /**
  * @title IProcessorAddressesProvider
  * @author mhng
  * @notice Defines the basic interface for a Processor Address Provider.
+ * @dev Main registry and configuration for the Payment Processor Protocol.
  */
 interface IProcessorAddressesProvider {
     /*//////////////////////////////////////////////////////////////
@@ -70,8 +73,95 @@ interface IProcessorAddressesProvider {
         address indexed newStablecoin
     );
 
+    event StablecoinUpdated(
+        address indexed oldStablecoin,
+        address indexed newStablecoin
+    );
+    event SellerUpdated(address indexed oldSeller, address indexed newSeller);
+    event NFTContractUpdated(address indexed oldNFT, address indexed newNFT);
+    event ConfigurationUpdated(
+        address indexed seller,
+        address indexed nftContract,
+        address indexed stablecoin
+    );
+
     /*//////////////////////////////////////////////////////////////
-                            FUNCTIONS
+                        SELLER CONFIGURATION FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+
+    /**
+     * @notice Set the full seller configuration
+     * @param seller The seller's wallet address
+     * @param nftContract The NFT contract address
+     * @param stablecoin The stablecoin address
+     */
+    function setConfiguration(
+        address seller,
+        address nftContract,
+        address stablecoin
+    ) external;
+
+    /**
+     * @notice Sets or updates the stablecoin that will be used with this Processor
+     * @dev IMPORTANT: THIS FUNCTION MUST BE CALLED BEFORE setProcessorImpl(), otherwise setProcessorImpl() will revert
+     * User deploys with ANY stablecoin on ANY chain
+     * addressesProvider = new ProcessorAddressesProvider(owner);
+     * addressesProvider.setStablecoin(stablecoinAddress);  // USDC, USDT, DAI, etc.
+     * addressesProvider.setProcessorImpl(implementation);
+     * That's it! User has their own Payment Processor
+     * @param stablecoinAddress The stablecoin address that will be set for usage with this Processor
+     */
+    function setStablecoin(address stablecoinAddress) external;
+
+    /**
+     * @notice Set the seller address
+     * @param newSeller The new seller address
+     */
+    function setSeller(address newSeller) external;
+
+    /**
+     * @notice Set the NFT contract address
+     * @param newNFTContract The new NFT contract address
+     */
+    function setNFTContract(address newNFTContract) external;
+
+    /*//////////////////////////////////////////////////////////////
+                        CONFIGURATION FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+    /**
+     * @notice Sets an address for an id replacing the address saved in the addresses map.
+     * @dev IMPORTANT Use this function carefully, as it will do a hard replacement
+     * @param id The id
+     * @param newAddress The address to set
+     */
+    function setAddress(bytes32 id, address newAddress) external;
+
+    /**
+     * @notice General function to update the implementation of a proxy registered with
+     * certain `id`. If there is no proxy registered, it will instantiate one and
+     * set as implementation the `newImplementationAddress`.
+     * @dev IMPORTANT Use this function carefully, only for ids that don't have an explicit
+     * setter function, in order to avoid unexpected consequences
+     * @param id The id
+     * @param newImplementationAddress The address of the new implementation
+     */
+    function setAddressAsProxy(
+        bytes32 id,
+        address newImplementationAddress
+    ) external;
+
+    /*//////////////////////////////////////////////////////////////
+                        PROCESSOR FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+    /**
+     * @notice Updates the implementation of the Processor, or creates a proxy
+     * setting the new `Processor` implementation when the function is called for the first time.
+     * @param newProcessorImpl The new Processor implementation
+     */
+    function setProcessorImpl(address newProcessorImpl) external;
+
+    /*//////////////////////////////////////////////////////////////
+                            GETTER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
     /**
      * @notice Returns the owner of the AddressesProvider
@@ -95,49 +185,29 @@ interface IProcessorAddressesProvider {
     function getProcessor() external view returns (address);
 
     /**
-     * @notice Returns the address of the current stablecoin used by the processor
-     * @dev It returns ZERO if there is no stablecoin set for the Processor
+     * @notice Returns the full seller configuration
+     * @return The SellerConfiguration struct
+     */
+    function getConfiguration()
+        external
+        view
+        returns (DataTypes.SellerConfiguration memory);
+
+    /**
+     * @notice Returns the stablecoin address
+     * @return The stablecoin address
      */
     function getStablecoin() external view returns (address);
 
     /**
-     * @notice Sets an address for an id replacing the address saved in the addresses map.
-     * @dev IMPORTANT Use this function carefully, as it will do a hard replacement
-     * @param id The id
-     * @param newAddress The address to set
+     * @notice Returns the seller address
+     * @return The seller address
      */
-    function setAddress(bytes32 id, address newAddress) external;
+    function getSeller() external view returns (address);
 
     /**
-     * @notice General function to update the implementation of a proxy registered with
-     * certain `id`. If there is no proxy registered, it will instantiate one and
-     * set as implementation the `newImplementationAddress`.
-     * @dev IMPORTANT Use this function carefully, only for ids that don't have an explicit
-     * setter function, in order to avoid unexpected consequences
-     * @param id The id
-     * @param newImplementationAddress The address of the new implementation
+     * @notice Returns the NFT contract address
+     * @return The NFT contract address
      */
-    function setAddressAsProxy(
-        bytes32 id,
-        address newImplementationAddress
-    ) external;
-
-    /**
-     * @notice Sets or updates the stablecoin that will be used with this Processor
-     * @dev IMPORTANT: THIS FUNCTION MUST BE CALLED BEFORE setProcessorImpl(), otherwise setProcessorImpl() will revert
-     * User deploys with ANY stablecoin on ANY chain
-     * addressesProvider = new ProcessorAddressesProvider(owner);
-     * addressesProvider.setStablecoin(stablecoinAddress);  // USDC, USDT, DAI, etc.
-     * addressesProvider.setProcessorImpl(implementation);
-     * That's it! User has their own Payment Processor
-     * @param stablecoinAddress The stablecoin address that will be set for usage with this Processor
-     */
-    function setStablecoin(address stablecoinAddress) external;
-
-    /**
-     * @notice Updates the implementation of the Processor, or creates a proxy
-     * setting the new `Processor` implementation when the function is called for the first time.
-     * @param newProcessorImpl The new Processor implementation
-     */
-    function setProcessorImpl(address newProcessorImpl) external;
+    function getNFTContract() external view returns (address);
 }

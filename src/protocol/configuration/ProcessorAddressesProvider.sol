@@ -4,9 +4,17 @@ pragma solidity 0.8.33;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IProcessorAddressesProvider} from "../../interfaces/IProcessorAddressesProvider.sol";
+import {IProcessor} from "../../interfaces/IProcessor.sol";
 import {InitializableImmutableAdminUpgradeabilityProxy} from "../../misc/upgradeability/InitializableImmutableAdminUpgradeabilityProxy.sol";
+import {DataTypes} from "../../libraries/types/DataTypes.sol";
 import {Errors} from "../../libraries/helpers/Errors.sol";
 
+/**
+ * @title ProcessorAddressesProvider
+ * @author mhng
+ * @notice Main registry and configuration for the Payment Processor Protocol
+ * @dev Stores seller configuration and manages Processor proxy deployment/upgrades
+ */
 contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
     // Identifier for different Processor versions on the same chain -> possible future development
     // string private _versionId;
@@ -14,16 +22,18 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
     // Map of registered addresses (identifier => registeredAddress)
     mapping(bytes32 => address) private _addresses;
 
+    /// @dev Seller platform configuration
+    DataTypes.SellerConfiguration private _configuration;
+
     // Main identifiers
     bytes32 private constant PROCESSOR = "PROCESSOR";
-    bytes32 private constant STABLECOIN = "STABLECOIN";
 
     // Future modules:
     // bytes32 private constant FEE_MANAGER = "FEE_MANAGER";
     // bytes32 private constant PROCESSOR_CONFIGURATOR = "PROCESSOR_CONFIGURATOR";
 
     /**
-     * @dev Constructor.
+     * @notice Initialize the AddressesProvider
      * @param initOwner The owner address of this contract.
      */
     constructor(
@@ -33,34 +43,45 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
     }
 
     /*//////////////////////////////////////////////////////////////
-                            VIEW FUNCTIONS
+                    CONFIGURATION FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    /**
-     * @notice Returns the owner of the contract
-     * @dev Overrides both Ownable and IProcessorAddressesProvider
-     */
-    function owner()
-        public
-        view
-        override(Ownable, IProcessorAddressesProvider)
-        returns (address)
-    {
-        return super.owner(); // Calls Ownable's owner()
+
+    /// @inheritdoc IProcessorAddressesProvider
+    function setConfiguration(
+        address seller,
+        address nftContract,
+        address stablecoin
+    ) external override onlyOwner {
+        _configuration = DataTypes.SellerConfiguration({
+            seller: seller,
+            nftContract: nftContract,
+            stablecoin: stablecoin
+        });
+
+        emit ConfigurationUpdated(seller, nftContract, stablecoin);
     }
 
     /// @inheritdoc IProcessorAddressesProvider
-    function getAddress(bytes32 id) public view override returns (address) {
-        return _addresses[id];
+    function setStablecoin(address newStablecoin) external override onlyOwner {
+        address oldStablecoin = _configuration.stablecoin;
+        _configuration.stablecoin = newStablecoin;
+        emit StablecoinUpdated(oldStablecoin, newStablecoin);
     }
 
     /// @inheritdoc IProcessorAddressesProvider
-    function getProcessor() external view override returns (address) {
-        return getAddress(PROCESSOR);
+    function setSeller(address newSeller) external override onlyOwner {
+        address oldSeller = _configuration.seller;
+        _configuration.seller = newSeller;
+        emit SellerUpdated(oldSeller, newSeller);
     }
 
     /// @inheritdoc IProcessorAddressesProvider
-    function getStablecoin() external view override returns (address) {
-        return getAddress(STABLECOIN);
+    function setNFTContract(
+        address newNFTContract
+    ) external override onlyOwner {
+        address oldNFT = _configuration.nftContract;
+        _configuration.nftContract = newNFTContract;
+        emit NFTContractUpdated(oldNFT, newNFTContract);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -94,18 +115,6 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
     }
 
     /// @inheritdoc IProcessorAddressesProvider
-    function setStablecoin(
-        address stablecoinAddress
-    ) external override onlyOwner {
-        if (stablecoinAddress == address(0)) {
-            revert Errors.PPP__InvalidStablecoin();
-        }
-        address oldStablecoin = _addresses[STABLECOIN];
-        _addresses[STABLECOIN] = stablecoinAddress;
-        emit StablecoinSet(oldStablecoin, stablecoinAddress);
-    }
-
-    /// @inheritdoc IProcessorAddressesProvider
     function setProcessorImpl(
         address newProcessorImpl
     ) external override onlyOwner {
@@ -113,6 +122,17 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
         _updateImpl(PROCESSOR, newProcessorImpl);
         emit ProcessorUpdated(oldProcessorImpl, newProcessorImpl);
     }
+
+    //   /**
+    //    * @dev Possible future development
+    //    * @notice Updates the version of the Processor.
+    //    * @param newVersionId The new version id of the Processor
+    //    */
+    //   function _setVersionId(string memory newVersionId) internal {
+    //     string memory oldVersionId = _versionId;
+    //     _versionId = newVersionId;
+    //     emit VersionIdSet(oldVersionId, newVersionId);
+    //   }
 
     /*//////////////////////////////////////////////////////////////
                             INTERNAL FUNCTIONS
@@ -128,7 +148,7 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
      */
     function _updateImpl(bytes32 id, address newAddress) internal {
         address proxyAddress = _addresses[id];
-        address stablecoinAddress = _addresses[STABLECOIN];
+        address stablecoinAddress = _configuration.stablecoin;
 
         if (stablecoinAddress == address(0)) {
             revert Errors.PPP__StablecoinNotSet();
@@ -177,14 +197,54 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
         }
     }
 
-    //   /**
-    //    * @dev Possible future development
-    //    * @notice Updates the version of the Processor.
-    //    * @param newVersionId The new version id of the Processor
-    //    */
-    //   function _setVersionId(string memory newVersionId) internal {
-    //     string memory oldVersionId = _versionId;
-    //     _versionId = newVersionId;
-    //     emit VersionIdSet(oldVersionId, newVersionId);
-    //   }
+    /*//////////////////////////////////////////////////////////////
+                            VIEW FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+    /**
+     * @notice Returns the owner of the contract
+     * @dev Overrides both Ownable and IProcessorAddressesProvider
+     */
+    function owner()
+        public
+        view
+        override(Ownable, IProcessorAddressesProvider)
+        returns (address)
+    {
+        return super.owner(); // Calls Ownable's owner()
+    }
+
+    /// @inheritdoc IProcessorAddressesProvider
+    function getAddress(bytes32 id) public view override returns (address) {
+        return _addresses[id];
+    }
+
+    /// @inheritdoc IProcessorAddressesProvider
+    function getProcessor() external view override returns (address) {
+        return getAddress(PROCESSOR);
+    }
+
+    /// @inheritdoc IProcessorAddressesProvider
+    function getConfiguration()
+        external
+        view
+        override
+        returns (DataTypes.SellerConfiguration memory)
+    {
+        return _configuration;
+    }
+
+    /// @inheritdoc IProcessorAddressesProvider
+    function getStablecoin() external view override returns (address) {
+        return _configuration.stablecoin;
+    }
+
+    /// @inheritdoc IProcessorAddressesProvider
+    function getSeller() external view override returns (address) {
+        return _configuration.seller;
+    }
+
+    /// @inheritdoc IProcessorAddressesProvider
+    function getNFTContract() external view override returns (address) {
+        return _configuration.nftContract;
+    }
 }
