@@ -4,7 +4,6 @@ pragma solidity 0.8.33;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IProcessorAddressesProvider} from "../../interfaces/IProcessorAddressesProvider.sol";
-import {IProcessor} from "../../interfaces/IProcessor.sol";
 import {InitializableImmutableAdminUpgradeabilityProxy} from "../../misc/upgradeability/InitializableImmutableAdminUpgradeabilityProxy.sol";
 import {DataTypes} from "../../libraries/types/DataTypes.sol";
 import {Errors} from "../../libraries/helpers/Errors.sol";
