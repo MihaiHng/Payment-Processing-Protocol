@@ -156,9 +156,8 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
         InitializableImmutableAdminUpgradeabilityProxy proxy;
 
         bytes memory params = abi.encodeWithSignature(
-            "initialize(address,address)",
-            address(this),
-            stablecoinAddress
+            "initialize(address)",
+            address(this)
         );
 
         if (proxyAddress == address(0)) {

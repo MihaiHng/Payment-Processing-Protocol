@@ -2,8 +2,6 @@
 
 pragma solidity 0.8.33;
 
-import {DataTypes} from "../libraries/types/DataTypes.sol";
-
 /**
  * @title IProcessor
  * @author mhng
@@ -25,7 +23,6 @@ interface IProcessor {
         uint256 indexed totalBalance
     );
     event ProcessorWithdrawAll(address user, uint256 indexed totalWithdraw);
-    event SellerRegistered(address indexed seller, address indexed nftContract);
     event PaymentProcessed(
         bytes32 indexed paymentId,
         address indexed buyer,
@@ -58,26 +55,25 @@ interface IProcessor {
     /**
      *
      */
-    function extractPaymentData()
-        external
-        returns (DataTypes.PaymentData memory paymentData);
+    // function extractPaymentData()
+    //     external
+    //     returns (DataTypes.PaymentData memory paymentData);
 
     /**
-     * @notice Handles the logic associated with the on-chain transactions, transfer price amount to seller, transfer item to buyer, confirmations
-     * @param paymentId The Id of the payment
-     * @param seller The address of the seller
+     * @notice Process a confirmed fiat payment
+     * @dev Transfers USDC to seller and NFT to buyer atomically
+     * @param paymentId Unique payment identifier
      * @param buyer The address of the buyer
-     * @param item The address. of the digital item
-     * @param price The price to be paid in name of the buyer
+     * @param tokenId The address of the digital item
+     * @param amount The stablecoin amount to transfer to seller
      * @return Returns confirmation of payment processing success or failure
      */
-    function processPayment(
-        uint256 paymentId,
-        address seller,
-        uint256 buyer,
-        address item,
-        uint256 price
-    ) external returns (bool);
+    // function processPayment(
+    //     uint256 paymentId,
+    //     uint256 buyer,
+    //     address tokenId,
+    //     uint256 amount
+    // ) external returns (bool);
 
     /*//////////////////////////////////////////////////////////////
                         GETTER/VIEW FUNCTIONS
@@ -99,4 +95,19 @@ interface IProcessor {
      * @return The address of the stablecoin used by the Processor
      */
     function getStablecoin() external view returns (address);
+
+    /**
+     * @notice Get the seller address (from AddressesProvider)
+     */
+    function getSeller() external view returns (address);
+
+    /**
+     * @notice Get the NFT contract address (from AddressesProvider)
+     */
+    function getNFTContract() external view returns (address);
+
+    /**
+     * @notice Check if a payment has been processed
+     */
+    function isPaymentProcessed(bytes32 paymentId) external view returns (bool);
 }

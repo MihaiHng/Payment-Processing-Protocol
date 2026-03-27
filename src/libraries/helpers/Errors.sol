@@ -18,8 +18,6 @@ library Errors {
                           PROCESSOR ERRORS
     //////////////////////////////////////////////////////////////*/
 
-    error PPP__StablecoinNotSet();
-    error PPP__InvalidStablecoin();
     error PPP__NothingToWithdraw();
     error PPP__InsufficientBalance();
     error PPP__TransferFailed();
@@ -29,11 +27,13 @@ library Errors {
                         MARKETPLACE ERRORS
     //////////////////////////////////////////////////////////////*/
 
+    error PPP__StablecoinNotSet();
+    error PPP__SellerNotSet();
+    error PPP__NFTContractNotSet();
+    error PPP__InvalidStablecoin();
     error PPP__InvalidSeller();
     error PPP__InvalidNFTContract();
     error PPP__InvalidBuyer();
     error PPP__InvalidAmount();
-    error PPP__SellerNotRegistered();
-    error PPP__NFTContractNotSet();
     error PPP__PaymentAlreadyProcessed();
 }

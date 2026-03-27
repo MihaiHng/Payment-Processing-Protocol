@@ -3,7 +3,6 @@
 pragma solidity 0.8.33;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /**
  * @title Processor_Storage
@@ -27,12 +26,6 @@ abstract contract Processor_Storage {
 
     // Mapping to track deployer/owner deposits
     mapping(address => uint256) public totalFunded;
-
-    /// @dev The seller's wallet address (receives USDC payments)
-    address public seller;
-
-    /// @dev The NFT contract address (tickets to be transferred)
-    IERC721 public nftContract;
 
     /// @dev Payment ID => processed status (prevents double processing)
     mapping(bytes32 => bool) public processedPayments;

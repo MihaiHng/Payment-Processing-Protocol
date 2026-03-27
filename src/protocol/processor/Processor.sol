@@ -7,7 +7,6 @@ import {FundProcessorLogic} from "../../libraries/logic/FundProcessorLogic.sol";
 import {WithdrawProcessorLogic} from "../../libraries/logic/WithdrawProcessorLogic.sol";
 import {IProcessor} from "../../interfaces/IProcessor.sol";
 import {IProcessorAddressesProvider} from "../../interfaces/IProcessorAddressesProvider.sol";
-import {IProcessorAddressesProvider} from "../../interfaces/IProcessorAddressesProvider.sol";
 import {DataTypes} from "../../libraries/types/DataTypes.sol";
 import {Errors} from "../../libraries/helpers/Errors.sol";
 import {VersionedInitializable} from "../../misc/upgradeability/VersionedInitializable.sol";
@@ -24,6 +23,7 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
  * @notice Fiat-to-Crypto Payment Processor
  * @dev Supports any ERC20 stablecoin (USDC, USDT, DAI, etc.)
  * @dev Handles atomic USDC + NFT transfers on payment confirmation
+ * @dev Reads configuration from AddressesProvider
  */
 abstract contract Processor is
     VersionedInitializable,
@@ -62,24 +62,17 @@ abstract contract Processor is
                         EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
     /**
-     * @notice Initializes the Processor with the addresses provider address and the set stablecoin address.
+     * @notice Initializes the Processor with the addresses provider address and the set configuration.
      * @dev Function is invoked by the proxy contract when the Processor contract is added to the
      * ProcessorAddressesProvider.
      * @param _provider The address of the ProcessorAddressesProvider
-     * @param _stablecoin The stablecoin address (USDC, USDT, DAI, etc.)
      */
-    function initialize(
-        IProcessorAddressesProvider _provider,
-        address _stablecoin
-    ) external virtual;
+    function initialize(IProcessorAddressesProvider _provider) external virtual;
 
     /// @inheritdoc IProcessor
     function fundProcessor(
         uint256 amount
     ) external virtual override nonReentrant onlyOwner {
-        if (address(stablecoin) == address(0)) {
-            revert Errors.PPP__StablecoinNotSet();
-        }
         totalBalance = FundProcessorLogic.executeFundProcessor(
             stablecoin,
             amount,
@@ -111,24 +104,23 @@ abstract contract Processor is
         );
     }
 
-    /// @inheritdoc IProcessor
-    function extractPaymentData()
-        external
-        virtual
-        override
-        nonReentrant
-        onlyOwner
-        returns (DataTypes.PaymentData memory paymentData)
-    {}
+    // /// @inheritdoc IProcessor
+    // function extractPaymentData()
+    //     external
+    //     virtual
+    //     override
+    //     nonReentrant
+    //     onlyOwner
+    //     returns (DataTypes.PaymentData memory paymentData)
+    // {}
 
-    /// @inheritdoc IProcessor
-    function processPayment(
-        uint256 paymentId,
-        address seller,
-        uint256 buyer,
-        address item,
-        uint256 price
-    ) external virtual override nonReentrant onlyOwner returns (bool) {}
+    // /// @inheritdoc IProcessor
+    // function processPayment(
+    //     uint256 paymentId,
+    //     uint256 buyer,
+    //     address tokenId,
+    //     uint256 amount
+    // ) external override nonReentrant onlyOwner returns (bool) {}
 
     /*//////////////////////////////////////////////////////////////
                         INTERNAL FUNCTIONS
@@ -156,5 +148,22 @@ abstract contract Processor is
     /// @inheritdoc IProcessor
     function getStablecoin() external view virtual override returns (address) {
         return address(stablecoin);
+    }
+
+    /// @inheritdoc IProcessor
+    function getSeller() external view virtual override returns (address) {
+        return ADDRESSES_PROVIDER.getSeller();
+    }
+
+    /// @inheritdoc IProcessor
+    function getNFTContract() external view virtual override returns (address) {
+        return ADDRESSES_PROVIDER.getNFTContract();
+    }
+
+    /// @inheritdoc IProcessor
+    function isPaymentProcessed(
+        bytes32 paymentId
+    ) external view virtual override returns (bool) {
+        return processedPayments[paymentId];
     }
 }
