@@ -5,6 +5,7 @@ pragma solidity 0.8.33;
 import {Processor_Storage} from "./Processor_Storage.sol";
 import {FundProcessorLogic} from "../../libraries/logic/FundProcessorLogic.sol";
 import {WithdrawProcessorLogic} from "../../libraries/logic/WithdrawProcessorLogic.sol";
+import {ProcessingPaymentLogic} from "../../libraries/logic/ProcessingPaymentLogic.sol";
 import {IProcessor} from "../../interfaces/IProcessor.sol";
 import {IProcessorAddressesProvider} from "../../interfaces/IProcessorAddressesProvider.sol";
 import {DataTypes} from "../../libraries/types/DataTypes.sol";
@@ -38,6 +39,7 @@ abstract contract Processor is
     using SafeERC20 for IERC20;
     using FundProcessorLogic for IERC20;
     using WithdrawProcessorLogic for IERC20;
+    using ProcessingPaymentLogic for IERC20;
 
     /*//////////////////////////////////////////////////////////////
                           STATE VARIABLES
@@ -114,13 +116,28 @@ abstract contract Processor is
     //     returns (DataTypes.PaymentData memory paymentData)
     // {}
 
-    // /// @inheritdoc IProcessor
-    // function processPayment(
-    //     uint256 paymentId,
-    //     uint256 buyer,
-    //     address tokenId,
-    //     uint256 amount
-    // ) external override nonReentrant onlyOwner returns (bool) {}
+    /// @inheritdoc IProcessor
+    function processPayment(
+        bytes32 paymentId,
+        address buyer,
+        uint256 tokenId,
+        uint256 amount
+    ) external virtual override nonReentrant onlyOwner returns (bool) {
+        totalBalance = ProcessingPaymentLogic.executeProcessingPayment(
+            ADDRESSES_PROVIDER,
+            processedPayments,
+            stablecoin,
+            totalBalance,
+            DataTypes.PaymentData({
+                paymentId: paymentId,
+                buyer: buyer,
+                tokenId: tokenId,
+                amount: amount
+            })
+        );
+
+        return true;
+    }
 
     /*//////////////////////////////////////////////////////////////
                         INTERNAL FUNCTIONS

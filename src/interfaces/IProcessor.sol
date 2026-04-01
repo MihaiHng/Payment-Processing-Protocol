@@ -66,14 +66,14 @@ interface IProcessor {
      * @param buyer The address of the buyer
      * @param tokenId The address of the digital item
      * @param amount The stablecoin amount to transfer to seller
-     * @return Returns confirmation of payment processing success or failure
+     * @return Returns confirmation of payment processing success
      */
-    // function processPayment(
-    //     uint256 paymentId,
-    //     uint256 buyer,
-    //     address tokenId,
-    //     uint256 amount
-    // ) external returns (bool);
+    function processPayment(
+        bytes32 paymentId,
+        address buyer,
+        uint256 tokenId,
+        uint256 amount
+    ) external returns (bool);
 
     /*//////////////////////////////////////////////////////////////
                         GETTER/VIEW FUNCTIONS
