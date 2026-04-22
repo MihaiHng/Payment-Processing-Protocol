@@ -15,5 +15,6 @@ docs/
 
 /lib
 
-
+# ppp-backend
 /ppp-backend/.env
+/ppp-backend/node_modules
