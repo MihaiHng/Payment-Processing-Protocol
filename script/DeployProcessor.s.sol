@@ -1,53 +1,50 @@
 /**
  * ## Deployment Flow
  *
- * * _deployCore(admin, stablecoinAddress)
+ * _deployCore(admin, seller, nftContract, stablecoin)
  *
- * ┌──────────────────────────────────────┐
- * │ Step 1: Deploy AddressesProvider     │
- * │ new ProcessorAddressesProvider(admin)│
- * └──────────────────┬───────────────────┘
- *                    │
- *                    ▼
- * ┌──────────────────────────────────────┐
- * │ Step 2: Set Stablecoin               │
- * │ setStablecoin(stablecoinAddress)     │
- * │                                      │
- * │ User chooses: USDC, USDT, DAI, etc.  │
- * │ Stored in: _addresses[STABLECOIN]    │
- * └──────────────────┬───────────────────┘
- *                    │
- *                    ▼
- * ┌──────────────────────────────────────┐
- * │ Step 3: Deploy Implementation        │
- * │ new ProcessorInstance(provider)      │
- * │                                      │
- * │ Only sets immutable ADDRESSES_PROVIDER│
- * └──────────────────┬───────────────────┘
- *                    │
- *                    ▼
- * ┌──────────────────────────────────────┐
- * │ Step 4: Register → Creates Proxy     │
- * │ setProcessorImpl(implementation)     │
- * │                                      │
- * │ Internally (_updateImpl):            │
- * │  • Creates proxy                     │
- * │  • Sets implementation               │
- * │  • Calls initialize(provider,        │
- * │         stablecoinAddress)           │
- * │  • Stablecoin stored in proxy storage│
- * └──────────────────┬───────────────────┘
- *                    │
- *                    ▼
- * ┌──────────────────────────────────────┐
- * │ Return: processorProxy               │
- * │ (This is what users interact with)   │
- * │                                      │
- * │ Proxy has:                           │
- * │  • stablecoin = user's choice        │
- * │  • totalBalance = 0                  │
- * │  • Ready for fundProcessor()         │
- * └──────────────────────────────────────┘
+ * ┌──────────────────────────────────────────────────────┐
+ * │ Step 1: Deploy AddressesProvider with ALL config    │
+ * │ new ProcessorAddressesProvider(                     │
+ * │     admin,                                          │
+ * │     seller,                                         │
+ * │     nftContract,                                    │
+ * │     stablecoin                                      │
+ * │ )                                                   │
+ * │                                                     │
+ * │ Configuration stored immediately!                   │
+ * └──────────────────────┬───────────────────────────────┘
+ *                        │
+ *                        ▼
+ * ┌──────────────────────────────────────────────────────┐
+ * │ Step 2: Deploy Implementation                        │
+ * │ new ProcessorInstance(provider)                      │
+ * │                                                      │
+ * │ Only sets immutable ADDRESSES_PROVIDER               │
+ * └──────────────────────┬───────────────────────────────┘
+ *                        │
+ *                        ▼
+ * ┌──────────────────────────────────────────────────────┐
+ * │ Step 3: Register → Creates Proxy                     │
+ * │ setProcessorImpl(implementation)                     │
+ * │                                                      │
+ * │ Internally:                                          │
+ * │  • Creates proxy                                     │
+ * │  • Calls initialize(provider)                        │
+ * │  • Reads config from provider                        │
+ * └──────────────────────┬───────────────────────────────┘
+ *                        │
+ *                        ▼
+ * ┌──────────────────────────────────────────────────────┐
+ * │ Return: processorProxy                               |
+ * |(This is what users interact with)                    │
+ * │                                                      │
+ * │ Proxy has:                                           │                       │
+ * │  • totalBalance = 0                                  │
+ * │  • Ready for fundProcessor()                         │
+ * │                                                      │
+ * │ Ready to use! Configuration complete.                │
+ * └──────────────────────────────────────────────────────┘
  */
 
 /**
@@ -139,8 +136,6 @@ import {ProcessorInstance} from "../src/instances/ProcessorInstance.sol";
 import {ProcessorAddressesProvider} from "../src/protocol/configuration/ProcessorAddressesProvider.sol";
 import {IProcessorAddressesProvider} from "../src/interfaces/IProcessorAddressesProvider.sol";
 
-//import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 contract DeployProcessor is Script {
     // Deployed contract addresses
     ProcessorInstance public processorImplementation;
@@ -152,6 +147,8 @@ contract DeployProcessor is Script {
     function setUp() public {}
 
     function run() public returns (address processor) {
+        address sellerAddress = vm.envAddress("SELLER");
+        address nftAddress = vm.envAddress("NFT_CONTRACT");
         // User can override stablecoin via environment variable
         address stablecoinAddress = vm.envOr(
             "STABLECOIN",
@@ -160,11 +157,18 @@ contract DeployProcessor is Script {
 
         console.log("Starting Payment Processor deployment...");
         console.log("Chain ID:", block.chainid);
+        console.log("Seller:", sellerAddress);
+        console.log("NFT Contract:", nftAddress);
         console.log("Stablecoin:", stablecoinAddress);
 
         vm.startBroadcast();
 
-        processor = _deployCore(msg.sender, stablecoinAddress);
+        processor = _deployCore(
+            msg.sender,
+            sellerAddress,
+            nftAddress,
+            stablecoinAddress
+        );
 
         vm.stopBroadcast();
 
@@ -176,41 +180,46 @@ contract DeployProcessor is Script {
     /**
      * @notice Deploy all core contracts
      * @param admin Address that deploys and owns Payment Protocol
-     * @param stablecoinAddress Stablecoin address used with the Payment Protocol
+     * @param seller Seller wallet address (receives USDC)
+     * @param nftContract NFT contract address
+     * @param stablecoin Stablecoin address used with the Payment Protocol
      * @return processorProxy The address of the Processor proxy (user-facing)
      */
     function _deployCore(
         address admin,
-        address stablecoinAddress
+        address seller,
+        address nftContract,
+        address stablecoin
     ) internal returns (address) {
         // Step 1. Deploy ProcessorAddressesProvider
         // This is the central registry and proxy factory
 
-        addressesProvider = new ProcessorAddressesProvider(admin);
+        addressesProvider = new ProcessorAddressesProvider(
+            admin,
+            seller,
+            nftContract,
+            stablecoin
+        );
         console.log(
             "1. ProcessorAddressesProvider deployed:",
             address(addressesProvider)
         );
 
-        // Step 2: Set stablecoin (user's choice!)
-        addressesProvider.setStablecoin(stablecoinAddress);
-        console.log("2. Stablecoin set:", stablecoinAddress);
-
-        // Step 3. Deploy ProcessorInstance (Implementation)
+        // Step 2. Deploy ProcessorInstance (Implementation)
         processorImplementation = new ProcessorInstance(
             IProcessorAddressesProvider(address(addressesProvider))
         );
 
         console.log(
-            "3. ProcessorInstance (implementation) deployed:",
+            "2. ProcessorInstance (implementation) deployed:",
             address(processorImplementation)
         );
 
-        // Step 4. Register Implementation → Creates Proxy
+        // Step 3. Register Implementation → Creates Proxy
         addressesProvider.setProcessorImpl(address(processorImplementation));
 
         processorProxy = addressesProvider.getProcessor();
-        console.log("4. Processor Proxy created:", processorProxy);
+        console.log("3. Processor Proxy created:", processorProxy);
 
         return processorProxy;
     }
@@ -277,6 +286,14 @@ contract DeployProcessor is Script {
         console.log("DEPLOYMENT SUMMARY");
         console.log("========================================");
         console.log("Chain ID:                  ", block.chainid);
+        console.log(
+            "Seller:                     ",
+            addressesProvider.getSeller()
+        );
+        console.log(
+            "NFT Contract:               ",
+            addressesProvider.getNFTContract()
+        );
         console.log(
             "Stablecoin:                ",
             addressesProvider.getStablecoin()

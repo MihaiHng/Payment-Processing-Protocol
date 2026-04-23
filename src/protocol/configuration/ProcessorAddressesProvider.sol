@@ -6,7 +6,8 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IProcessorAddressesProvider} from "../../interfaces/IProcessorAddressesProvider.sol";
 import {InitializableImmutableAdminUpgradeabilityProxy} from "../../misc/upgradeability/InitializableImmutableAdminUpgradeabilityProxy.sol";
 import {DataTypes} from "../../libraries/types/DataTypes.sol";
-import {Errors} from "../../libraries/helpers/Errors.sol";
+
+// import {Errors} from "../../libraries/helpers/Errors.sol";
 
 /**
  * @title ProcessorAddressesProvider
@@ -36,9 +37,19 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
      * @param initOwner The owner address of this contract.
      */
     constructor(
-        address initOwner /*, string memory versionId*/
+        address initOwner,
+        address seller,
+        address nftContract,
+        address stablecoin /*, string memory versionId*/
     ) Ownable(initOwner) {
         // _setVersionId(versionId); // Possible future development, different processor for different projects and needs
+        _configuration = DataTypes.SellerConfiguration({
+            seller: seller,
+            nftContract: nftContract,
+            stablecoin: stablecoin
+        });
+
+        emit ConfigurationUpdated(seller, nftContract, stablecoin);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -147,11 +158,11 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
      */
     function _updateImpl(bytes32 id, address newAddress) internal {
         address proxyAddress = _addresses[id];
-        address stablecoinAddress = _configuration.stablecoin;
+        // address stablecoinAddress = _configuration.stablecoin;
 
-        if (stablecoinAddress == address(0)) {
-            revert Errors.PPP__StablecoinNotSet();
-        }
+        // if (stablecoinAddress == address(0)) {
+        //     revert Errors.PPP__StablecoinNotSet();
+        // }
 
         InitializableImmutableAdminUpgradeabilityProxy proxy;
 
