@@ -4,6 +4,7 @@ pragma solidity 0.8.33;
 import {Processor} from "../../src/protocol/processor/Processor.sol";
 import {IProcessorAddressesProvider} from "../../src/interfaces/IProcessorAddressesProvider.sol";
 import {Errors} from "../../src/libraries/helpers/Errors.sol";
+import {DataTypes} from "../../src/libraries/types/DataTypes.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
@@ -21,23 +22,20 @@ contract MockProcessorInstanceV2 is Processor {
      * ProcessorAddressesProvider.
      * @dev The passed ProcessorAddressesProvider is validated against the PROCESSOR.ADDRESSES_PROVIDER, to ensure the upgrade is done with correct intention.
      * @param _provider The address of the ProcessorAddressesProvider
-     * @param _stablecoin The stablecoin address (USDC, USDT, DAI, etc.)
      */
     function initialize(
-        IProcessorAddressesProvider _provider,
-        address _stablecoin
+        IProcessorAddressesProvider _provider
     ) external virtual override versionedInitializer {
         if (address(_provider) != address(ADDRESSES_PROVIDER)) {
             revert Errors.PPP__InvalidAddressesProvider();
         }
 
-        if (_stablecoin == address(0)) {
-            revert Errors.PPP__InvalidStablecoin();
-        }
+        DataTypes.SellerConfiguration memory config = _provider
+            .getConfiguration();
 
         _transferOwnership(_provider.owner());
 
-        stablecoin = IERC20(_stablecoin);
+        stablecoin = IERC20(config.stablecoin);
     }
 
     function getRevision() internal pure virtual override returns (uint256) {

@@ -147,7 +147,7 @@ contract BaseTest is Test {
         addressesProvider = new ProcessorAddressesProvider(owner);
 
         // 2. Set stablecoin
-        addressesProvider.setStablecoin(address(usdc));
+        // addressesProvider.setStablecoin(address(usdc));
 
         // 3. Deploy Implementation
         processorImplementation = new ProcessorInstance(

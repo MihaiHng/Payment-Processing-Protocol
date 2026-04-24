@@ -89,29 +89,29 @@ interface IProcessorAddressesProvider {
                         SELLER CONFIGURATION FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    /**
-     * @notice Set the full seller configuration
-     * @param seller The seller's wallet address
-     * @param nftContract The NFT contract address
-     * @param stablecoin The stablecoin address
-     */
-    function setConfiguration(
-        address seller,
-        address nftContract,
-        address stablecoin
-    ) external;
+    // /**
+    //  * @notice Set the full seller configuration
+    //  * @param seller The seller's wallet address
+    //  * @param nftContract The NFT contract address
+    //  * @param stablecoin The stablecoin address
+    //  */
+    // function setConfiguration(
+    //     address seller,
+    //     address nftContract,
+    //     address stablecoin
+    // ) external;
 
-    /**
-     * @notice Sets or updates the stablecoin that will be used with this Processor
-     * @dev IMPORTANT: THIS FUNCTION MUST BE CALLED BEFORE setProcessorImpl(), otherwise setProcessorImpl() will revert
-     * User deploys with ANY stablecoin on ANY chain
-     * addressesProvider = new ProcessorAddressesProvider(owner);
-     * addressesProvider.setStablecoin(stablecoinAddress);  // USDC, USDT, DAI, etc.
-     * addressesProvider.setProcessorImpl(implementation);
-     * That's it! User has their own Payment Processor
-     * @param stablecoinAddress The stablecoin address that will be set for usage with this Processor
-     */
-    function setStablecoin(address stablecoinAddress) external;
+    // /**
+    //  * @notice Sets or updates the stablecoin that will be used with this Processor
+    //  * @dev IMPORTANT: THIS FUNCTION MUST BE CALLED BEFORE setProcessorImpl(), otherwise setProcessorImpl() will revert
+    //  * User deploys with ANY stablecoin on ANY chain
+    //  * addressesProvider = new ProcessorAddressesProvider(owner);
+    //  * addressesProvider.setStablecoin(stablecoinAddress);  // USDC, USDT, DAI, etc.
+    //  * addressesProvider.setProcessorImpl(implementation);
+    //  * That's it! User has their own Payment Processor
+    //  * @param stablecoinAddress The stablecoin address that will be set for usage with this Processor
+    //  */
+    // function setStablecoin(address stablecoinAddress) external;
 
     /**
      * @notice Set the seller address

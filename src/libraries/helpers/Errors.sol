@@ -27,6 +27,7 @@ library Errors {
                         MARKETPLACE ERRORS
     //////////////////////////////////////////////////////////////*/
 
+    error PPP__InvalidOwner();
     error PPP__StablecoinNotSet();
     error PPP__SellerNotSet();
     error PPP__NFTContractNotSet();

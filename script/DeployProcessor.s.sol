@@ -4,15 +4,15 @@
  * _deployCore(admin, seller, nftContract, stablecoin)
  *
  * ┌──────────────────────────────────────────────────────┐
- * │ Step 1: Deploy AddressesProvider with ALL config    │
- * │ new ProcessorAddressesProvider(                     │
- * │     admin,                                          │
- * │     seller,                                         │
- * │     nftContract,                                    │
- * │     stablecoin                                      │
- * │ )                                                   │
- * │                                                     │
- * │ Configuration stored immediately!                   │
+ * │ Step 1: Deploy AddressesProvider with ALL config     │
+ * │ new ProcessorAddressesProvider(                      │
+ * │     admin,                                           │
+ * │     seller,                                          │
+ * │     nftContract,                                     │
+ * │     stablecoin                                       │
+ * │ )                                                    │
+ * │                                                      │
+ * │ Configuration stored immediately!                    │
  * └──────────────────────┬───────────────────────────────┘
  *                        │
  *                        ▼

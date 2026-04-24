@@ -34,15 +34,6 @@ contract ProcessorInstance is Processor {
 
         DataTypes.SellerConfiguration memory config = _provider
             .getConfiguration();
-        if (config.stablecoin == address(0)) {
-            revert Errors.PPP__StablecoinNotSet();
-        }
-        if (config.seller == address(0)) {
-            revert Errors.PPP__SellerNotSet();
-        }
-        if (config.nftContract == address(0)) {
-            revert Errors.PPP__NFTContractNotSet();
-        }
 
         // aderyn-ignore-next-line(reentrancy-state-change)
         _transferOwnership(_provider.owner());

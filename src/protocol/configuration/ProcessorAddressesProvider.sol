@@ -6,6 +6,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IProcessorAddressesProvider} from "../../interfaces/IProcessorAddressesProvider.sol";
 import {InitializableImmutableAdminUpgradeabilityProxy} from "../../misc/upgradeability/InitializableImmutableAdminUpgradeabilityProxy.sol";
 import {DataTypes} from "../../libraries/types/DataTypes.sol";
+import {Errors} from "../../libraries/helpers/Errors.sol";
 
 // import {Errors} from "../../libraries/helpers/Errors.sol";
 
@@ -43,6 +44,20 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
         address stablecoin /*, string memory versionId*/
     ) Ownable(initOwner) {
         // _setVersionId(versionId); // Possible future development, different processor for different projects and needs
+
+        if (initOwner == address(0)) {
+            revert Errors.PPP__InvalidOwner();
+        }
+        if (seller == address(0)) {
+            revert Errors.PPP__InvalidSeller();
+        }
+        if (nftContract == address(0)) {
+            revert Errors.PPP__InvalidNFTContract();
+        }
+        if (stablecoin == address(0)) {
+            revert Errors.PPP__InvalidStablecoin();
+        }
+
         _configuration = DataTypes.SellerConfiguration({
             seller: seller,
             nftContract: nftContract,
@@ -56,27 +71,47 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
                     CONFIGURATION FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc IProcessorAddressesProvider
-    function setConfiguration(
-        address seller,
-        address nftContract,
-        address stablecoin
-    ) external override onlyOwner {
-        _configuration = DataTypes.SellerConfiguration({
-            seller: seller,
-            nftContract: nftContract,
-            stablecoin: stablecoin
-        });
+    /**
+     *
+     *
+     *┌─────────────────────────────────────────────────────────────────────────────┐
+     *│                    THE STABLECOIN SYNC PROBLEM                              │
+     *└─────────────────────────────────────────────────────────────────────────────┘
+     *
+     *  1. Deploy with USDC
+     *  ├── Provider: stablecoin = USDC ✅
+     *  └── Processor: stablecoin = USDC ✅ (cached in initialize)
+     *
+     *  2. Owner calls provider.setStablecoin(USDT)
+     *  ├── Provider: stablecoin = USDT ✅
+     *  └── Processor: stablecoin = USDC ❌ (still old!)
+     *
+     *  3. processPayment() executes
+     *  └── Uses cached USDC, not USDT!
+     */
+    // Storage stablecoin doesn't update when updating by caling setStablecoin()
+    // Remove setStablecoin() - Can't Change Stablecoin After Deploy ==>
+    // /// @inheritdoc IProcessorAddressesProvider
+    // function setStablecoin(address newStablecoin) external override onlyOwner {
+    //     address oldStablecoin = _configuration.stablecoin;
+    //     _configuration.stablecoin = newStablecoin;
+    //     emit StablecoinUpdated(oldStablecoin, newStablecoin);
+    // }
 
-        emit ConfigurationUpdated(seller, nftContract, stablecoin);
-    }
+    // /// @inheritdoc IProcessorAddressesProvider
+    // function setConfiguration(
+    //     address seller,
+    //     address nftContract,
+    //     address stablecoin
+    // ) external override onlyOwner {
+    //     _configuration = DataTypes.SellerConfiguration({
+    //         seller: seller,
+    //         nftContract: nftContract,
+    //         stablecoin: stablecoin
+    //     });
 
-    /// @inheritdoc IProcessorAddressesProvider
-    function setStablecoin(address newStablecoin) external override onlyOwner {
-        address oldStablecoin = _configuration.stablecoin;
-        _configuration.stablecoin = newStablecoin;
-        emit StablecoinUpdated(oldStablecoin, newStablecoin);
-    }
+    //     emit ConfigurationUpdated(seller, nftContract, stablecoin);
+    // }
 
     /// @inheritdoc IProcessorAddressesProvider
     function setSeller(address newSeller) external override onlyOwner {
