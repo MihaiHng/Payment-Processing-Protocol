@@ -11,7 +11,7 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
  * @author mhng
  * @notice Football Match Ticket NFT - MVP Demo
  * @dev Features:
- *      - 100 tickets minted at deployment to owner
+ *      - 100 tickets minted at deployment to seller
  *      - Off-chain metadata (baseURI points to IPFS/server)
  *      - Owner approves Processor to transfer tickets on sale
  */
@@ -54,19 +54,22 @@ contract PlatformNFT is ERC721, Ownable {
 
     /**
      * @notice Deploy and mint 100 tickets to owner
-     * @param owner_ The platform owner who receives all tickets
+     * @param owner_ The platform owner, manages configuration, can upgrad implementation
+     * @param seller_ Receives NFTs
      * @param baseURI_ Base URI for metadata (e.g., "ipfs://Qm.../")
      */
     constructor(
-        address owner_,
+        address owner_, // Admin - can mint more, change URI
+        address seller_, // Treasury - receives the NFTs
         string memory baseURI_
     ) ERC721("Champions League Final 2026", "TICKET") Ownable(owner_) {
         if (owner_ == address(0)) revert PlatformNFT__InvalidAddress();
+        if (seller_ == address(0)) revert PlatformNFT__InvalidAddress();
 
         _baseTokenURI = baseURI_;
 
         // Mint 100 tickets to owner
-        _mintBatch(owner_, 100);
+        _mintBatch(seller_, 100);
     }
 
     /*//////////////////////////////////////////////////////////////

@@ -8,6 +8,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 // Mocks
 import {MockUSDC} from "./mocks/MockUSDC.sol";
+import {MockNFT} from "./mocks/MockNFT.sol";
 import {MockProcessorInstanceV2} from "./mocks/MockProcessorInstanceV2.sol";
 
 // Protocol contracts
@@ -31,6 +32,7 @@ contract BaseTest is Test {
     //////////////////////////////////////////////////////////////*/
 
     MockUSDC public usdc;
+    MockNFT public nft;
     ProcessorAddressesProvider public addressesProvider;
     ProcessorInstance public processorImplementation;
     address public processorProxy;
@@ -40,6 +42,8 @@ contract BaseTest is Test {
     //////////////////////////////////////////////////////////////*/
 
     address public owner;
+    address public seller;
+    address public buyer;
     address public user1;
     address public user2;
     address public user3;
@@ -53,6 +57,7 @@ contract BaseTest is Test {
 
     uint256 public constant INITIAL_USDC_BALANCE = 1_000_000e6; // 1M USDC
     uint256 public constant FUND_AMOUNT = 10_000e6; // 10k USDC
+    uint256 public constant TICKET_PRICE = 100e6; // 100 USDC
 
     /*//////////////////////////////////////////////////////////////
                                 EVENTS
@@ -63,6 +68,8 @@ contract BaseTest is Test {
         address indexed oldStablecoin,
         address indexed newStablecoin
     );
+    event SellerUpdated(address indexed oldSeller, address indexed newSeller);
+    event NFTContractUpdated(address indexed oldNFT, address indexed newNFT);
     event ProcessorUpdated(address indexed oldImpl, address indexed newImpl);
     event ProxyCreated(
         bytes32 indexed id,
@@ -80,6 +87,13 @@ contract BaseTest is Test {
         address indexed oldImplementationAddress,
         address newImplementationAddress
     );
+    event PaymentProcessed(
+        bytes32 indexed paymentId,
+        address indexed buyer,
+        uint256 indexed tokenId,
+        uint256 amount,
+        address seller
+    );
 
     /*//////////////////////////////////////////////////////////////
                           MODIFIERS
@@ -88,6 +102,18 @@ contract BaseTest is Test {
     /// @notice Prank as owner for the duration of the test
     modifier asOwner() {
         vm.startPrank(owner);
+        _;
+        vm.stopPrank();
+    }
+
+    modifier asSeller() {
+        vm.startPrank(seller);
+        _;
+        vm.stopPrank();
+    }
+
+    modifier asBuyer() {
+        vm.startPrank(buyer);
         _;
         vm.stopPrank();
     }
@@ -114,8 +140,8 @@ contract BaseTest is Test {
         // Create actors
         _createActors();
 
-        // Deploy mock USDC
-        _deployMockUSDC();
+        // Deploy mock
+        _deployMocks();
 
         // Deploy protocol
         _deployProtocol();
@@ -130,26 +156,31 @@ contract BaseTest is Test {
 
     function _createActors() internal {
         owner = makeAddr("owner");
+        seller = makeAddr("seller");
+        buyer = makeAddr("buyer");
         user1 = makeAddr("user1");
         user2 = makeAddr("user2");
         user3 = makeAddr("user3");
         unauthorized = makeAddr("unauthorized");
     }
 
-    function _deployMockUSDC() internal {
+    function _deployMocks() internal {
         usdc = new MockUSDC();
+        nft = new MockNFT();
     }
 
     function _deployProtocol() internal {
         vm.startPrank(owner);
 
         // 1. Deploy AddressesProvider
-        addressesProvider = new ProcessorAddressesProvider(owner);
+        addressesProvider = new ProcessorAddressesProvider(
+            owner,
+            seller,
+            address(nft),
+            address(usdc)
+        );
 
-        // 2. Set stablecoin
-        // addressesProvider.setStablecoin(address(usdc));
-
-        // 3. Deploy Implementation
+        // 2. Deploy Implementation
         processorImplementation = new ProcessorInstance(
             IProcessorAddressesProvider(address(addressesProvider))
         );
@@ -164,10 +195,22 @@ contract BaseTest is Test {
     function _setupInitialState() internal {
         // Mint USDC to actors
         usdc.mint(owner, INITIAL_USDC_BALANCE);
+        usdc.mint(seller, INITIAL_USDC_BALANCE);
+        usdc.mint(buyer, INITIAL_USDC_BALANCE);
         usdc.mint(user1, INITIAL_USDC_BALANCE);
         usdc.mint(user2, INITIAL_USDC_BALANCE);
         usdc.mint(user3, INITIAL_USDC_BALANCE);
     }
+
+    // ???????????????????????
+    // 100 Nfts are minted to owner?
+
+    // Approve processor to transfer NFTs
+    nft.setApprovalForAll(processorProxy, true);
+    vm.stopPrank();
+
+    // Fund processor with USDC
+    _fundProcessor(FUND_AMOUNT);
 
     /*//////////////////////////////////////////////////////////////
                           HELPER FUNCTIONS
@@ -200,6 +243,11 @@ contract BaseTest is Test {
         usdc.approve(processorProxy, amount);
     }
 
+    // @notice Generate a unique payment ID
+    function _generatePaymentId(string memory seed) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked(seed));
+    }
+
     /*//////////////////////////////////////////////////////////////
                           ASSERTION HELPERS
     //////////////////////////////////////////////////////////////*/
@@ -225,5 +273,12 @@ contract BaseTest is Test {
     /// @notice Assert user USDC balance
     function assertUserBalance(address user, uint256 expected) internal view {
         assertEq(usdc.balanceOf(user), expected, "User USDC balance mismatch");
+    }
+
+    function assertNFTOwner(
+        uint256 tokenId,
+        address expectedOwner
+    ) internal view {
+        assertEq(nft.ownerOf(tokenId), expectedOwner, "NFT owner mismatch");
     }
 }
