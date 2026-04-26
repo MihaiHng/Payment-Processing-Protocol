@@ -328,9 +328,11 @@ contract TestProcessorUpgrades is BaseTest {
 
         // Fresh deployment
         ProcessorAddressesProvider freshProvider = new ProcessorAddressesProvider(
-                owner
+                owner,
+                seller,
+                address(nft),
+                address(usdc)
             );
-        freshProvider.setStablecoin(address(usdc));
 
         ProcessorInstance v1 = new ProcessorInstance(
             IProcessorAddressesProvider(address(freshProvider))

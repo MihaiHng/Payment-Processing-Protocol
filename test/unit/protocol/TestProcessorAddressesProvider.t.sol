@@ -22,32 +22,32 @@ contract TestProcessorAddressesProvider is BaseTest {
                         SET STABLECOIN TESTS
     //////////////////////////////////////////////////////////////*/
 
-    function test_SetStablecoin_UpdatesAddress() public asOwner {
-        address newStablecoin = makeAddr("newStablecoin");
+    // function test_SetStablecoin_UpdatesAddress() public asOwner {
+    //     address newStablecoin = makeAddr("newStablecoin");
 
-        addressesProvider.setStablecoin(newStablecoin);
+    //     addressesProvider.setStablecoin(newStablecoin);
 
-        assertEq(addressesProvider.getStablecoin(), newStablecoin);
-    }
+    //     assertEq(addressesProvider.getStablecoin(), newStablecoin);
+    // }
 
-    function test_SetStablecoin_EmitsEvent() public asOwner {
-        address newStablecoin = makeAddr("newStablecoin");
+    // function test_SetStablecoin_EmitsEvent() public asOwner {
+    //     address newStablecoin = makeAddr("newStablecoin");
 
-        vm.expectEmit(true, true, false, false);
-        emit StablecoinSet(address(usdc), newStablecoin);
+    //     vm.expectEmit(true, true, false, false);
+    //     emit StablecoinSet(address(usdc), newStablecoin);
 
-        addressesProvider.setStablecoin(newStablecoin);
-    }
+    //     addressesProvider.setStablecoin(newStablecoin);
+    // }
 
-    function test_SetStablecoin_RevertsIfZeroAddress() public asOwner {
-        vm.expectRevert(Errors.PPP__InvalidStablecoin.selector);
-        addressesProvider.setStablecoin(address(0));
-    }
+    // function test_SetStablecoin_RevertsIfZeroAddress() public asOwner {
+    //     vm.expectRevert(Errors.PPP__InvalidStablecoin.selector);
+    //     addressesProvider.setStablecoin(address(0));
+    // }
 
-    function test_SetStablecoin_RevertsIfNotOwner() public asUnauthorized {
-        vm.expectRevert();
-        addressesProvider.setStablecoin(makeAddr("newStablecoin"));
-    }
+    // function test_SetStablecoin_RevertsIfNotOwner() public asUnauthorized {
+    //     vm.expectRevert();
+    //     addressesProvider.setStablecoin(makeAddr("newStablecoin"));
+    // }
 
     /*//////////////////////////////////////////////////////////////
                         SET ADDRESS TESTS
@@ -162,7 +162,10 @@ contract TestProcessorAddressesProvider is BaseTest {
     function test_SetAddressAsProxy_RevertsIfStablecoinNotSet() public {
         vm.startPrank(owner);
         ProcessorAddressesProvider freshProvider = new ProcessorAddressesProvider(
-                owner
+                owner,
+                seller,
+                address(nft),
+                address(usdc)
             );
         // NOT setting stablecoin
 
@@ -197,9 +200,11 @@ contract TestProcessorAddressesProvider is BaseTest {
         // Deploy fresh provider without proxy
         vm.startPrank(owner);
         ProcessorAddressesProvider freshProvider = new ProcessorAddressesProvider(
-                owner
+                owner,
+                seller,
+                address(nft),
+                address(usdc)
             );
-        freshProvider.setStablecoin(address(usdc));
 
         // Verify no proxy exists yet
         assertEq(freshProvider.getProcessor(), address(0));
@@ -223,9 +228,11 @@ contract TestProcessorAddressesProvider is BaseTest {
     function test_SetProcessorImpl_EmitsProxyCreatedEvent() public {
         vm.startPrank(owner);
         ProcessorAddressesProvider freshProvider = new ProcessorAddressesProvider(
-                owner
+                owner,
+                seller,
+                address(nft),
+                address(usdc)
             );
-        freshProvider.setStablecoin(address(usdc));
 
         ProcessorInstance newImpl = new ProcessorInstance(
             IProcessorAddressesProvider(address(freshProvider))
@@ -246,10 +253,11 @@ contract TestProcessorAddressesProvider is BaseTest {
     function test_SetProcessorImpl_EmitsProcessorUpdatedEvent() public {
         vm.startPrank(owner);
         ProcessorAddressesProvider freshProvider = new ProcessorAddressesProvider(
-                owner
+                owner,
+                seller,
+                address(nft),
+                address(usdc)
             );
-        freshProvider.setStablecoin(address(usdc));
-
         ProcessorInstance newImpl = new ProcessorInstance(
             IProcessorAddressesProvider(address(freshProvider))
         );
@@ -264,9 +272,11 @@ contract TestProcessorAddressesProvider is BaseTest {
     function test_SetProcessorImpl_InitializesProcessor() public {
         vm.startPrank(owner);
         ProcessorAddressesProvider freshProvider = new ProcessorAddressesProvider(
-                owner
+                owner,
+                seller,
+                address(nft),
+                address(usdc)
             );
-        freshProvider.setStablecoin(address(usdc));
 
         ProcessorInstance newImpl = new ProcessorInstance(
             IProcessorAddressesProvider(address(freshProvider))
@@ -285,7 +295,10 @@ contract TestProcessorAddressesProvider is BaseTest {
     function test_SetProcessorImpl_RevertsIfStablecoinNotSet() public {
         vm.startPrank(owner);
         ProcessorAddressesProvider freshProvider = new ProcessorAddressesProvider(
-                owner
+                owner,
+                seller,
+                address(nft),
+                address(usdc)
             );
         // NOT setting stablecoin
 
@@ -336,13 +349,13 @@ contract TestProcessorAddressesProvider is BaseTest {
         assertEq(addressesProvider.owner(), address(0));
     }
 
-    function test_RenounceOwnership_PreventsAdminFunctions() public {
-        vm.prank(owner);
-        addressesProvider.renounceOwnership();
+    // function test_RenounceOwnership_PreventsAdminFunctions() public {
+    //     vm.prank(owner);
+    //     addressesProvider.renounceOwnership();
 
-        // Now no one can call admin functions
-        vm.prank(owner);
-        vm.expectRevert();
-        addressesProvider.setStablecoin(makeAddr("newStablecoin"));
-    }
+    //     // Now no one can call admin functions
+    //     vm.prank(owner);
+    //     vm.expectRevert();
+    //     addressesProvider.setStablecoin(makeAddr("newStablecoin"));
+    // }
 }

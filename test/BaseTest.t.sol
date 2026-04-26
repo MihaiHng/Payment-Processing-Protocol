@@ -15,6 +15,7 @@ import {MockProcessorInstanceV2} from "./mocks/MockProcessorInstanceV2.sol";
 import {ProcessorAddressesProvider} from "../src/protocol/configuration/ProcessorAddressesProvider.sol";
 import {ProcessorInstance} from "../src/instances/ProcessorInstance.sol";
 import {Processor} from "../src/protocol/processor/Processor.sol";
+import {PlatformNFT} from "../src/nft/PlatformNFT.sol";
 
 // Interfaces
 import {IProcessorAddressesProvider} from "../src/interfaces/IProcessorAddressesProvider.sol";
@@ -32,7 +33,7 @@ contract BaseTest is Test {
     //////////////////////////////////////////////////////////////*/
 
     MockUSDC public usdc;
-    MockNFT public nft;
+    PlatformNFT public nft;
     ProcessorAddressesProvider public addressesProvider;
     ProcessorInstance public processorImplementation;
     address public processorProxy;
@@ -58,16 +59,17 @@ contract BaseTest is Test {
     uint256 public constant INITIAL_USDC_BALANCE = 1_000_000e6; // 1M USDC
     uint256 public constant FUND_AMOUNT = 10_000e6; // 10k USDC
     uint256 public constant TICKET_PRICE = 100e6; // 100 USDC
+    string public constant BASE_URI = "ipfs://QmTest/";
 
     /*//////////////////////////////////////////////////////////////
                                 EVENTS
     //////////////////////////////////////////////////////////////*/
 
     // Declare events for expectEmit
-    event StablecoinSet(
-        address indexed oldStablecoin,
-        address indexed newStablecoin
-    );
+    // event StablecoinSet(
+    //     address indexed oldStablecoin,
+    //     address indexed newStablecoin
+    // );
     event SellerUpdated(address indexed oldSeller, address indexed newSeller);
     event NFTContractUpdated(address indexed oldNFT, address indexed newNFT);
     event ProcessorUpdated(address indexed oldImpl, address indexed newImpl);
@@ -166,7 +168,10 @@ contract BaseTest is Test {
 
     function _deployMocks() internal {
         usdc = new MockUSDC();
-        nft = new MockNFT();
+
+        // Deploy NFT - mints 100 tickets to owner
+        vm.prank(owner);
+        nft = new PlatformNFT(owner, seller, BASE_URI);
     }
 
     function _deployProtocol() internal {
@@ -185,9 +190,12 @@ contract BaseTest is Test {
             IProcessorAddressesProvider(address(addressesProvider))
         );
 
-        // 4. Register Implementation → Creates Proxy
+        // 3. Register Implementation → Creates Proxy
         addressesProvider.setProcessorImpl(address(processorImplementation));
         processorProxy = addressesProvider.getProcessor();
+
+        // 4. Approve Processor to transfer NFTs
+        nft.setApprovalForAll(processorProxy, true);
 
         vm.stopPrank();
     }
@@ -200,17 +208,10 @@ contract BaseTest is Test {
         usdc.mint(user1, INITIAL_USDC_BALANCE);
         usdc.mint(user2, INITIAL_USDC_BALANCE);
         usdc.mint(user3, INITIAL_USDC_BALANCE);
+
+        // Fund processor with USDC
+        _fundProcessor(FUND_AMOUNT);
     }
-
-    // ???????????????????????
-    // 100 Nfts are minted to owner?
-
-    // Approve processor to transfer NFTs
-    nft.setApprovalForAll(processorProxy, true);
-    vm.stopPrank();
-
-    // Fund processor with USDC
-    _fundProcessor(FUND_AMOUNT);
 
     /*//////////////////////////////////////////////////////////////
                           HELPER FUNCTIONS
@@ -244,7 +245,9 @@ contract BaseTest is Test {
     }
 
     // @notice Generate a unique payment ID
-    function _generatePaymentId(string memory seed) internal pure returns (bytes32) {
+    function _generatePaymentId(
+        string memory seed
+    ) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked(seed));
     }
 
