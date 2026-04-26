@@ -14,18 +14,18 @@ import {BaseUpgradeabilityProxy} from "../../dependencies/openzeppelin/upgradeab
  * feature proposal that would enable this to be done automatically.
  */
 contract BaseImmutableAdminUpgradeabilityProxy is BaseUpgradeabilityProxy {
-    address internal immutable _admin;
+    address internal immutable _ADMIN;
 
     /**
      * @dev Constructor.
      * @param admin_ The address of the admin
      */
     constructor(address admin_) {
-        _admin = admin_;
+        _ADMIN = admin_;
     }
 
     modifier ifAdmin() {
-        if (msg.sender == _admin) {
+        if (msg.sender == _ADMIN) {
             _;
         } else {
             _fallback();
@@ -37,7 +37,7 @@ contract BaseImmutableAdminUpgradeabilityProxy is BaseUpgradeabilityProxy {
      * @return The address of the proxy admin.
      */
     function admin() external ifAdmin returns (address) {
-        return _admin;
+        return _ADMIN;
     }
 
     /**
@@ -80,7 +80,7 @@ contract BaseImmutableAdminUpgradeabilityProxy is BaseUpgradeabilityProxy {
      */
     function _willFallback() internal virtual override {
         require(
-            msg.sender != _admin,
+            msg.sender != _ADMIN,
             "Cannot call fallback function from the proxy admin"
         );
         super._willFallback();

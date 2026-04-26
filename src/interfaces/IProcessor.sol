@@ -104,7 +104,7 @@ interface IProcessor {
     /**
      * @notice Get the NFT contract address (from AddressesProvider)
      */
-    function getNFTContract() external view returns (address);
+    function getNftContract() external view returns (address);
 
     /**
      * @notice Check if a payment has been processed

@@ -14,13 +14,11 @@ import {MockProcessorInstanceV2} from "./mocks/MockProcessorInstanceV2.sol";
 // Protocol contracts
 import {ProcessorAddressesProvider} from "../src/protocol/configuration/ProcessorAddressesProvider.sol";
 import {ProcessorInstance} from "../src/instances/ProcessorInstance.sol";
-import {Processor} from "../src/protocol/processor/Processor.sol";
 import {PlatformNFT} from "../src/nft/PlatformNFT.sol";
 
 // Interfaces
 import {IProcessorAddressesProvider} from "../src/interfaces/IProcessorAddressesProvider.sol";
 import {IProcessor} from "../src/interfaces/IProcessor.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title BaseTest
@@ -210,7 +208,7 @@ contract BaseTest is Test {
         usdc.mint(user3, INITIAL_USDC_BALANCE);
 
         // Fund processor with USDC
-        _fundProcessor(FUND_AMOUNT);
+        // _fundProcessor(FUND_AMOUNT);
     }
 
     /*//////////////////////////////////////////////////////////////
