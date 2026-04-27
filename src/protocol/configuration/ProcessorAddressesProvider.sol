@@ -288,7 +288,7 @@ contract ProcessorAddressesProvider is Ownable, IProcessorAddressesProvider {
     }
 
     /// @inheritdoc IProcessorAddressesProvider
-    function getNFTContract() external view override returns (address) {
+    function getNftContract() external view override returns (address) {
         return _configuration.nftContract;
     }
 }

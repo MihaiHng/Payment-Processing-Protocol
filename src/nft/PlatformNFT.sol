@@ -7,7 +7,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
- * @title PlatformNFT
+ * @title PlatformNft
  * @author mhng
  * @notice Football Match Ticket NFT - MVP Demo
  * @dev Features:
@@ -15,7 +15,7 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
  *      - Off-chain metadata (baseURI points to IPFS/server)
  *      - Owner approves Processor to transfer tickets on sale
  */
-contract PlatformNFT is ERC721, Ownable {
+contract PlatformNft is ERC721, Ownable {
     using Strings for uint256;
 
     /*//////////////////////////////////////////////////////////////

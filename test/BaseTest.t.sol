@@ -206,9 +206,6 @@ contract BaseTest is Test {
         usdc.mint(user1, INITIAL_USDC_BALANCE);
         usdc.mint(user2, INITIAL_USDC_BALANCE);
         usdc.mint(user3, INITIAL_USDC_BALANCE);
-
-        // Fund processor with USDC
-        // _fundProcessor(FUND_AMOUNT);
     }
 
     /*//////////////////////////////////////////////////////////////

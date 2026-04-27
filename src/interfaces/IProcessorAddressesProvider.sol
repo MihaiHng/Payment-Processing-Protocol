@@ -209,5 +209,5 @@ interface IProcessorAddressesProvider {
      * @notice Returns the NFT contract address
      * @return The NFT contract address
      */
-    function getNFTContract() external view returns (address);
+    function getNftContract() external view returns (address);
 }

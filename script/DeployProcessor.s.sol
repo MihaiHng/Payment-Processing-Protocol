@@ -135,11 +135,13 @@ import {Script, console} from "forge-std/Script.sol";
 import {ProcessorInstance} from "../src/instances/ProcessorInstance.sol";
 import {ProcessorAddressesProvider} from "../src/protocol/configuration/ProcessorAddressesProvider.sol";
 import {IProcessorAddressesProvider} from "../src/interfaces/IProcessorAddressesProvider.sol";
+import {PlatformNft} from "../src/nft/PlatformNft.sol";
 
 contract DeployProcessor is Script {
     // Deployed contract addresses
     ProcessorInstance public processorImplementation;
     ProcessorAddressesProvider public addressesProvider;
+    PlatformNft public nft;
 
     // Proxy addresses (what users interact with)
     address public processorProxy;
@@ -148,26 +150,26 @@ contract DeployProcessor is Script {
 
     function run() public returns (address processor) {
         address sellerAddress = vm.envAddress("SELLER");
-        address nftAddress = vm.envAddress("NFT_CONTRACT");
         // User can override stablecoin via environment variable
         address stablecoinAddress = vm.envOr(
             "STABLECOIN",
             _getDefaultStablecoin()
         );
+        string memory baseURI = vm.envString("BASE_URI");
 
         console.log("Starting Payment Processor deployment...");
         console.log("Chain ID:", block.chainid);
         console.log("Seller:", sellerAddress);
-        console.log("NFT Contract:", nftAddress);
         console.log("Stablecoin:", stablecoinAddress);
+        console.log("Base URI:", baseURI);
 
         vm.startBroadcast();
 
         processor = _deployCore(
             msg.sender,
             sellerAddress,
-            nftAddress,
-            stablecoinAddress
+            stablecoinAddress,
+            baseURI
         );
 
         vm.stopBroadcast();
@@ -181,45 +183,54 @@ contract DeployProcessor is Script {
      * @notice Deploy all core contracts
      * @param admin Address that deploys and owns Payment Protocol
      * @param seller Seller wallet address (receives USDC)
-     * @param nftContract NFT contract address
      * @param stablecoin Stablecoin address used with the Payment Protocol
+     * @param baseURI Path to metadata
      * @return processorProxy The address of the Processor proxy (user-facing)
      */
     function _deployCore(
         address admin,
         address seller,
-        address nftContract,
-        address stablecoin
+        address stablecoin,
+        string memory baseURI
     ) internal returns (address) {
-        // Step 1. Deploy ProcessorAddressesProvider
-        // This is the central registry and proxy factory
+        // Step 1. Deploy NFT - mints to SELLER
+        nft = new PlatformNft(admin, seller, baseURI);
+        console.log("1. PLatformNft deployed:", address(nft));
 
+        // Step 2. Deploy ProcessorAddressesProvider
+        // This is the central registry and proxy factory
         addressesProvider = new ProcessorAddressesProvider(
             admin,
             seller,
-            nftContract,
+            address(nft),
             stablecoin
         );
         console.log(
-            "1. ProcessorAddressesProvider deployed:",
+            "2. ProcessorAddressesProvider deployed:",
             address(addressesProvider)
         );
 
-        // Step 2. Deploy ProcessorInstance (Implementation)
+        // Step 3. Deploy ProcessorInstance (Implementation)
         processorImplementation = new ProcessorInstance(
             IProcessorAddressesProvider(address(addressesProvider))
         );
 
         console.log(
-            "2. ProcessorInstance (implementation) deployed:",
+            "3. ProcessorInstance (implementation) deployed:",
             address(processorImplementation)
         );
 
-        // Step 3. Register Implementation → Creates Proxy
+        // Step 4. Register Implementation → Creates Proxy
         addressesProvider.setProcessorImpl(address(processorImplementation));
 
         processorProxy = addressesProvider.getProcessor();
-        console.log("3. Processor Proxy created:", processorProxy);
+        console.log("4. Processor Proxy created:", processorProxy);
+
+        // OPTIONAL => WORKS HERE IN MVP BECAUSE ADMIN == SELLER
+        // FOR PRODUCTION SELLER MUST SIGN TRANSACTION
+        // Step 5. Approve Processor to transfer NFTs
+        nft.setApprovalForAll(processorProxy, true);
+        console.log("5. Processor approved to transfer NFTs");
 
         return processorProxy;
     }
@@ -290,10 +301,7 @@ contract DeployProcessor is Script {
             "Seller:                     ",
             addressesProvider.getSeller()
         );
-        console.log(
-            "NFT Contract:               ",
-            addressesProvider.getNFTContract()
-        );
+        console.log("PlatformNft:", addressesProvider.getNftContract());
         console.log(
             "Stablecoin:                ",
             addressesProvider.getStablecoin()
@@ -304,6 +312,13 @@ contract DeployProcessor is Script {
             "Processor (Implementation):",
             address(processorImplementation)
         );
+        console.log("========================================\n");
+
+        console.log("\n  NEXT STEPS:");
+        console.log("1. Seller must approve Processor to transfer NFTs:");
+        console.log("   nft.setApprovalForAll(%s, true)", processorProxy);
+        console.log("2. Owner must fund Processor with USDC:");
+        console.log("   processor.fundProcessor(amount)");
         console.log("========================================\n");
     }
 }
