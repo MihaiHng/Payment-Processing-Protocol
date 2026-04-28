@@ -14,7 +14,7 @@ import {MockProcessorInstanceV2} from "./mocks/MockProcessorInstanceV2.sol";
 // Protocol contracts
 import {ProcessorAddressesProvider} from "../src/protocol/configuration/ProcessorAddressesProvider.sol";
 import {ProcessorInstance} from "../src/instances/ProcessorInstance.sol";
-import {PlatformNFT} from "../src/nft/PlatformNFT.sol";
+import {PlatformNft} from "../src/nft/PlatformNft.sol";
 
 // Interfaces
 import {IProcessorAddressesProvider} from "../src/interfaces/IProcessorAddressesProvider.sol";
@@ -31,7 +31,7 @@ contract BaseTest is Test {
     //////////////////////////////////////////////////////////////*/
 
     MockUSDC public usdc;
-    PlatformNFT public nft;
+    PlatformNft public nft;
     ProcessorAddressesProvider public addressesProvider;
     ProcessorInstance public processorImplementation;
     address public processorProxy;
@@ -169,7 +169,7 @@ contract BaseTest is Test {
 
         // Deploy NFT - mints 100 tickets to owner
         vm.prank(owner);
-        nft = new PlatformNFT(owner, seller, BASE_URI);
+        nft = new PlatformNft(owner, seller, BASE_URI);
     }
 
     function _deployProtocol() internal {
