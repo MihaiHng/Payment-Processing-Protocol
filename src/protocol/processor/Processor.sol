@@ -170,7 +170,7 @@ abstract contract Processor is
 
     /// @inheritdoc IProcessor
     function getNftContract() external view virtual override returns (address) {
-        return ADDRESSES_PROVIDER.getNFTContract();
+        return ADDRESSES_PROVIDER.getNftContract();
     }
 
     /// @inheritdoc IProcessor

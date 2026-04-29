@@ -3,21 +3,62 @@ require('dotenv').config();
 const express = require('express');
 const Stripe = require('stripe');
 const { ethers } = require('ethers');
+const fs = require('fs');
+const readline = require('readline');
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const app = express();
 
-// Setup provider and contract ONCE at startup (not per request)
-const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
-const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
-const processor = new ethers.Contract(
-    process.env.PROCESSOR_ADDRESS,
-    ['function processPayment(bytes32,address,uint256,uint256) returns (bool)'],
-    wallet
-);
-
-// Current token ID to sell
+let processor;
 let currentTokenId = 1;
+
+// Password prompt (hidden input)
+function askPassword(prompt) {
+    return new Promise((resolve) => {
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+
+        process.stdout.write(prompt);
+        process.stdin.setRawMode(true);
+        process.stdin.resume();
+
+        let password = '';
+        process.stdin.on('data', (char) => {
+            char = char.toString();
+            if (char === '\n' || char === '\r') {
+                process.stdin.setRawMode(false);
+                rl.close();
+                console.log('');
+                resolve(password);
+            } else if (char === '\u007F') {
+                password = password.slice(0, -1);
+            } else {
+                password += char;
+            }
+        });
+    });
+}
+
+async function initWallet() {
+    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+    const keystorePath = process.env.KEYSTORE_PATH;
+    const keystore = fs.readFileSync(keystorePath, 'utf8');
+
+    const password = await askPassword('🔐 Enter keystore password: ');
+
+    console.log('   Decrypting...');
+    const wallet = await ethers.Wallet.fromEncryptedJson(keystore, password);
+
+    processor = new ethers.Contract(
+        process.env.PROCESSOR_ADDRESS,
+        ['function processPayment(bytes32,address,uint256,uint256) returns (bool)'],
+        wallet.connect(provider)
+    );
+
+    console.log('✅ Wallet loaded:', wallet.address);
+}
 
 // Webhook endpoint
 app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
@@ -38,13 +79,11 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
 
-        // Get wallet from custom field (search by key for reliability)
         const walletField = session.custom_fields?.find(f =>
             f.key === 'walletaddress' || f.key === 'wallet_address'
         );
         const buyerWallet = walletField?.text?.value || session.client_reference_id;
 
-        // Validate wallet address
         if (!buyerWallet || !ethers.isAddress(buyerWallet)) {
             console.error('❌ Invalid wallet address:', buyerWallet);
             return res.status(400).send('Invalid wallet address');
@@ -52,18 +91,24 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
         const amountCents = session.amount_total;
         const paymentId = session.payment_intent;
+        const usdcAmount = BigInt(amountCents) * BigInt(10000);
 
         console.log(`\n✅ Payment received!`);
         console.log(`   Buyer: ${buyerWallet}`);
         console.log(`   Token: #${currentTokenId}`);
         console.log(`   Amount: $${amountCents / 100}`);
 
-        // Convert cents to USDC (6 decimals)
-        const usdcAmount = BigInt(amountCents) * BigInt(10000);
-
-        // Process with error handling
         try {
-            await processPaymentOnChain(paymentId, buyerWallet, currentTokenId, usdcAmount);
+            console.log(`\n🔄 Processing on-chain...`);
+            const tx = await processor.processPayment(
+                ethers.id(paymentId),
+                buyerWallet,
+                BigInt(currentTokenId),
+                usdcAmount
+            );
+            console.log(`   Tx: ${tx.hash}`);
+            await tx.wait();
+            console.log(`\n🎉 NFT #${currentTokenId} delivered to ${buyerWallet}!\n`);
             currentTokenId++;
         } catch (err) {
             console.error('❌ Blockchain error:', err.message);
@@ -74,23 +119,14 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
     res.json({ received: true });
 });
 
-async function processPaymentOnChain(paymentId, buyer, tokenId, amount) {
-    console.log(`\n🔄 Processing on-chain...`);
-
-    const tx = await processor.processPayment(
-        ethers.id(paymentId),
-        buyer,
-        BigInt(tokenId),
-        amount
-    );
-
-    console.log(`   Tx: ${tx.hash}`);
-    await tx.wait();
-    console.log(`\n🎉 NFT #${tokenId} delivered to ${buyer}!\n`);
-}
-
-app.listen(3000, () => {
-    console.log(`\n🚀 Webhook server running on port 3000`);
-    console.log(`   Processor: ${process.env.PROCESSOR_ADDRESS}`);
-    console.log(`📦 Next token to sell: #${currentTokenId}\n`);
+// Start server after wallet is loaded
+initWallet().then(() => {
+    app.listen(3000, () => {
+        console.log(`\n🚀 Webhook server running on port 3000`);
+        console.log(`   Processor: ${process.env.PROCESSOR_ADDRESS}`);
+        console.log(`📦 Next token to sell: #${currentTokenId}\n`);
+    });
+}).catch(err => {
+    console.error('❌ Failed to load wallet:', err.message);
+    process.exit(1);
 });

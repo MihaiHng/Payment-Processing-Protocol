@@ -1,5 +1,16 @@
 // script/FundProcessor.s.sol
 
+/**
+PROCESSOR_PROXY=0x... \
+STABLECOIN=0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d \
+AMOUNT=20000000 \
+ */
+
+// ========================================================================================================================
+// RUN THIS TO FUND THE PROCESSOR!
+// forge script script/FundProcessor.s.sol --rpc-url $ARBITRUM_SEPOLIA_RPC_URL --account deployer --broadcast
+// ========================================================================================================================
+
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.33;
 
