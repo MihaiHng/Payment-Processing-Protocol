@@ -1,14 +1,23 @@
 /**
  * ## Deployment Flow
  *
- * _deployCore(admin, seller, nftContract, stablecoin)
+ * _deployCore(admin, seller, stablecoin, baseURI)
  *
  * ┌──────────────────────────────────────────────────────┐
- * │ Step 1: Deploy AddressesProvider with ALL config     │
+ * │ Step 1: Deploy PlatformNft                           │
+ * │ new PlatformNft(admin, seller, baseURI)              │
+ * │                                                      │
+ * │ • 100 NFTs minted to SELLER                          │
+ * │ • Admin can mint more later                          │
+ * └──────────────────────┬───────────────────────────────┘
+ *                        │
+ *                        ▼
+ * ┌──────────────────────────────────────────────────────┐
+ * │ Step 2: Deploy AddressesProvider with ALL config     │
  * │ new ProcessorAddressesProvider(                      │
  * │     admin,                                           │
  * │     seller,                                          │
- * │     nftContract,                                     │
+ * │     address(nft),                                    │
  * │     stablecoin                                       │
  * │ )                                                    │
  * │                                                      │
@@ -17,7 +26,7 @@
  *                        │
  *                        ▼
  * ┌──────────────────────────────────────────────────────┐
- * │ Step 2: Deploy Implementation                        │
+ * │ Step 3: Deploy Implementation                        │
  * │ new ProcessorInstance(provider)                      │
  * │                                                      │
  * │ Only sets immutable ADDRESSES_PROVIDER               │
@@ -25,25 +34,64 @@
  *                        │
  *                        ▼
  * ┌──────────────────────────────────────────────────────┐
- * │ Step 3: Register → Creates Proxy                     │
+ * │ Step 4: Register → Creates Proxy                     │
  * │ setProcessorImpl(implementation)                     │
  * │                                                      │
  * │ Internally:                                          │
  * │  • Creates proxy                                     │
  * │  • Calls initialize(provider)                        │
- * │  • Reads config from provider                        │
+ * │  • Caches stablecoin in proxy storage                │
+ * │  • Transfers ownership to admin                      │
  * └──────────────────────┬───────────────────────────────┘
  *                        │
  *                        ▼
  * ┌──────────────────────────────────────────────────────┐
- * │ Return: processorProxy                               |
- * |(This is what users interact with)                    │
+ * │ Step 5: Approve Processor for NFT transfers          │
+ * │ nft.setApprovalForAll(processorProxy, true)          │
  * │                                                      │
- * │ Proxy has:                                           │                       │
+ * │ • Works in MVP because admin == seller               │
+ * │ • Production: seller must sign separately            │
+ * └──────────────────────┬───────────────────────────────┘
+ *                        │
+ *                        ▼
+ * ┌──────────────────────────────────────────────────────┐
+ * │ Return: processorProxy                               │
+ * │                                                      │
+ * │ Processor has:                                       │
+ * │  • stablecoin cached                                 │
+ * │  • seller/nft read from provider                     │
  * │  • totalBalance = 0                                  │
- * │  • Ready for fundProcessor()                         │
+ * │  • NFT approval set                                  │
  * │                                                      │
- * │ Ready to use! Configuration complete.                │
+ * │ Ready for:                                           │
+ * │  • fundProcessor() to add USDC                       │
+ * │  • processPayment() to sell NFTs                     │
+ * └──────────────────────────────────────────────────────┘
+ *
+ *
+ * ## Roles
+ *
+ * ┌─────────────────────────────────────────────────────┐
+ * │ ADMIN (owner)              │ SELLER (treasury)      │
+ * │────────────────────────────│────────────────────────│
+ * │ • Deploys contracts        │ • Holds NFTs           │
+ * │ • Calls processPayment()   │ • Receives USDC        │
+ * │ • Funds processor          │ • Approves processor   │
+ * │ • Can upgrade              │   for NFT transfers    │
+ * │ • Backend wallet           │ • Business wallet      │
+ * └─────────────────────────────────────────────────────┘
+ *
+ *
+ * ## Post-Deployment (Manual)
+ *
+ * ┌──────────────────────────────────────────────────────┐
+ * │ Fund Processor with USDC                             │
+ * │                                                      │
+ * │ cast send $USDC "approve(address,uint256)" \         │
+ * │     $PROCESSOR_PROXY $AMOUNT --account deployer      │
+ * │                                                      │
+ * │ cast send $PROCESSOR_PROXY "fundProcessor(uint256)" \│
+ * │     $AMOUNT --account deployer                       │
  * └──────────────────────────────────────────────────────┘
  */
 
@@ -125,7 +173,7 @@ forge script script/DeployProcessor.s.sol --rpc-url $ETH_RPC_URL --broadcast
 
 // ========================================================================================================================
 // RUN THIS TO DEPLOY!
-// forge script script/DeployProcessor.s.sol --rpc-url $SEPOLIA_RPC_URL --account Test01 --broadcast
+// forge script script/DeployProcessor.s.sol --rpc-url $SEPOLIA_RPC_URL --account Test02 --broadcast
 // ========================================================================================================================
 
 // SPDX-License-Identifier: UNLICENSED
