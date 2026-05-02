@@ -173,7 +173,7 @@ forge script script/DeployProcessor.s.sol --rpc-url $ETH_RPC_URL --broadcast
 
 // ========================================================================================================================
 // RUN THIS TO DEPLOY!
-// forge script script/DeployProcessor.s.sol --rpc-url $SEPOLIA_RPC_URL --account Test02 --broadcast
+// forge script script/DeployProcessor.s.sol --rpc-url $ARBITRUM_SEPOLIA_URL --account Test02 --broadcast
 // ========================================================================================================================
 
 // SPDX-License-Identifier: UNLICENSED
@@ -349,7 +349,10 @@ contract DeployProcessor is Script {
             "Seller:                     ",
             addressesProvider.getSeller()
         );
-        console.log("PlatformNft:", addressesProvider.getNftContract());
+        console.log(
+            "PlatformNft:               ",
+            addressesProvider.getNftContract()
+        );
         console.log(
             "Stablecoin:                ",
             addressesProvider.getStablecoin()
@@ -363,9 +366,7 @@ contract DeployProcessor is Script {
         console.log("========================================\n");
 
         console.log("\n  NEXT STEPS:");
-        console.log("1. Seller must approve Processor to transfer NFTs:");
-        console.log("   nft.setApprovalForAll(%s, true)", processorProxy);
-        console.log("2. Owner must fund Processor with USDC:");
+        console.log("1. Owner must fund Processor with USDC:");
         console.log("   processor.fundProcessor(amount)");
         console.log("========================================\n");
     }
