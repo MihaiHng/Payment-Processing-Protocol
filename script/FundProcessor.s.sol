@@ -22,24 +22,24 @@ contract FundProcessor is Script {
     function run() external {
         address processorProxy = vm.envAddress("PROCESSOR_PROXY");
         address stablecoin = vm.envAddress("STABLECOIN");
-        uint256 amount = vm.envOr("AMOUNT", uint256(20e6));
+        uint256 fundAmount = vm.envOr("FUND_AMOUNT", uint256(20e6));
 
         console.log("Processor:", processorProxy);
         console.log("Stablecoin:", stablecoin);
-        console.log("Amount:", amount);
+        console.log("FUND_AMOUNT:", fundAmount);
 
         vm.startBroadcast();
 
         // Approve
-        IERC20(stablecoin).approve(processorProxy, amount);
+        IERC20(stablecoin).approve(processorProxy, fundAmount);
         console.log("1. Approved USDC spending");
 
         // Fund
-        IProcessor(processorProxy).fundProcessor(amount);
+        IProcessor(processorProxy).fundProcessor(fundAmount);
         console.log("2. Funded processor");
 
         vm.stopBroadcast();
 
-        console.log("\n Processor funded with:", amount / 1e6, "USDC");
+        console.log("\n Processor funded with:", fundAmount / 1e6, "USDC");
     }
 }
