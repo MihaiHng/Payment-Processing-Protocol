@@ -173,7 +173,7 @@ forge script script/DeployProcessor.s.sol --rpc-url $ETH_RPC_URL --broadcast
 
 // ========================================================================================================================
 // RUN THIS TO DEPLOY!
-// forge script script/DeployProcessor.s.sol --rpc-url $ARBITRUM_SEPOLIA_URL --account Test02 --broadcast
+// forge script script/DeployProcessor.s.sol --rpc-url $ARBITRUM_SEPOLIA_RPC_URL --account Test02 --broadcast
 // ========================================================================================================================
 
 // SPDX-License-Identifier: UNLICENSED

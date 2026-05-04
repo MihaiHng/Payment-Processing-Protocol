@@ -8,7 +8,7 @@ AMOUNT=20000000 \
 
 // ========================================================================================================================
 // RUN THIS TO FUND THE PROCESSOR!
-// forge script script/FundProcessor.s.sol --rpc-url $ARBITRUM_SEPOLIA_RPC_URL --account deployer --broadcast
+// forge script script/FundProcessor.s.sol --rpc-url $ARBITRUM_SEPOLIA_RPC_URL --account Test02 --broadcast
 // ========================================================================================================================
 
 // SPDX-License-Identifier: UNLICENSED
