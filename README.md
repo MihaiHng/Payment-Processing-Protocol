@@ -1,8 +1,8 @@
-# Payment Processing Protocol(PPP)
+# Fiat-to-Crypto Payment Processing Protocol(PPP)
 
 # About
 
-The ***Payment Processing Protocol(PPP)*** is a smart contract system designed to process FIAT payments in blockchain powered applications. The result will be credit card payments senttled into cryptocurrency, more explicitly into stablecoins.
+The ***Fiat-to-Crypto Payment Processing Protocol(PPP)*** is a smart contract system designed to process FIAT payments in blockchain powered applications. The result will be credit card payments settled into cryptocurrency, more explicitly into stablecoins.
 
 The goal is for users to pay with a credit card when buying digital assets and bypass the use of a crypto-wallet.
 
@@ -14,7 +14,7 @@ As crypto-wallets need an above the average technical know-how for operation(set
 
 ## Description
 
-
+Let's take an example to better understand how this protocol works.
 
 ## Properties
 
@@ -62,8 +62,8 @@ forge build
 ## Backend Terminals 
 
 ```
-Terminal 1: $ node server.js
-Terminal 2: $ stripe listen --forward-to localhost:3000/webhook
+Terminal 1: node server.js
+Terminal 2: stripe listen --forward-to localhost:3000/webhook
 ```
 
 ## Testing 
