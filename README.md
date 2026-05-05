@@ -29,7 +29,9 @@ As crypto-wallets need an above the average technical know-how for operation(set
 - [foundry](https://getfoundry.sh/)
   - After installing run `forge --version` and the result should be `forge x.x.x`
 
-## Install Dependencies
+## Install Dependencies 
+
+### Smart Contract
 
 ```
 forge install smartcontractkit/chainlink-brownie-contracts
@@ -41,12 +43,27 @@ forge install OpenZeppelin/openzeppelin-foundry-upgrades
 forge install OpenZeppelin/openzeppelin-contracts-upgradeable
 ```
 
+### Backend 
+
+```
+cd ppp-backend
+npm init -y
+nom install npm install express stripe ethers dotenv readline-sync
+```
+
 ## Quickstart
 
 ```
 git clone https://github.com/MihaiHng/Payment-Processing-Protocol 
 cd Payment-Processing-Protocol
 forge build
+```
+
+## Backend Terminals 
+
+```
+Terminal 1: $ node server.js
+Terminal 2: $ stripe listen --forward-to localhost:3000/webhook
 ```
 
 ## Testing 
@@ -65,9 +82,6 @@ Slither Report:
 - Upgradeablity Tests
 - Fuzz Tests
 - Invariant Tests
-
-## Frontend 
-
 
 
 ## Future Improvements
