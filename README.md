@@ -1,4 +1,4 @@
-# Fiat-to-Crypto Payment Processing Protocol(PPP)
+# Fiat-to-Crypto Payment Processing Protocol(PPP) - MVP
 
 # About
 
@@ -14,11 +14,23 @@ As crypto-wallets need an above the average technical know-how for operation(set
 
 ## Description
 
-Let's take an example to better understand how this protocol works.
+This service is intended for C2B and B2B payments, in blockchain applications like digital assets e-commerce/trading, payments for services/subscriptions or other use cases.  
+
+In order to better understand how the Fiat-to-Crypto Payment Processing works, the MVP uses a ticketing platform that sells entrance tickets as NFTs. 
+
+Actors: Admin/Owner
+        Seller Platform
+        Buyer
+
+Operations Flow:
+
+
 
 ## Properties
 
+Bussiness will have the possibility to deploy their own Fiat-to-Crypto Payment Processor with custom configuration.
 
+Configuration:
 
 # Getting Started
 
