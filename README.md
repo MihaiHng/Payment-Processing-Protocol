@@ -2,9 +2,9 @@
 
 # About
 
-The ***Fiat-to-Crypto Payment Processing Protocol(PPP)*** is a smart contract system designed to process FIAT payments in blockchain powered applications. The result will be credit card payments settled into cryptocurrency, more explicitly into stablecoins.
+The ***Fiat-to-Crypto Payment Processing Protocol(PPP)*** is a payment system that enables buyers to purchase blockchain related digital assets or services with credit cards while sellers receive stablecoin payments.
 
-The goal is for users to pay with a credit card when buying digital assets and remove the need of connecting a wallet.
+The goal is for users to pay with a credit to remove the need of connecting a wallet and buying+swaping crypto.
 
 As crypto-wallets need an above the average technical know-how for operation(set-up, secure pass-phrase, funding, connecting), this project is intended to allow more individuals to aquire and use blockchain related products, increasing overall adoption.
 
@@ -12,17 +12,15 @@ As crypto-wallets need an above the average technical know-how for operation(set
 
 This service is intended for C2B and B2B payments, in blockchain applications like digital assets e-commerce/trading, payments for services/subscriptions or other use cases.  
 
-In order to better understand how the Fiat-to-Crypto Payment Processing works, the MVP makes use of a ticketing platform that sells entrance tickets as NFTs. 
-
-There is no website that sells tickets, but to mimick and simplify the buying process we go straight to the  Stripe payment checkout page.
+In order to better understand how the Fiat-to-Crypto Payment Processing works, the MVP simulates buiying tickets as NFTS on a ticketing platform. While there is no website that sells tickets, to mimic and simplify the buying process, a Stripe payment checkout page is used.
 
 Actors: 
 
   1. Admin/Owner - account that deploys the payment processor, sets/updates configuration and controls main functions
-                 - can update processor implementation(can he?)
-  2. Seller Platform - entity(smart contract/EOA) that owns and transfers digital assets, receives payments 
-                           - for this MVP seller = admin
-  3. Buyer - consumer paying with credit card, address filled in at checkout
+                 - can upgrade processor implementation
+  2. Seller Platform - treasury(smart contract/EOA) that owns and transfers digital assets, receives payments 
+                     - for this MVP seller = admin for simplification
+  3. Buyer - consumer paying with credit card, wallet address and email filled in at checkout
 
 ## How it works
 
@@ -44,9 +42,10 @@ Actors:
 ```
     BUYER                      STRIPE                     BLOCKCHAIN
       │                          │                            │
-      │  1. Opens payment link   │                            │
-      │  2. Enters wallet address│                            │
-      │  3. Pays with card    │                            │
+      │  1. Visit checkout page  │                            │
+      │  2. Enters wallet address|                            |
+      │  3. Enters email         │                            |
+      │  3. Pays with card       │                            │
       │ ────────────────────────►│                            │
       │                          │                            │
       │                          │  4. Payment confirmed      │
@@ -64,19 +63,15 @@ Actors:
                                     8. USDC sent to Seller
 ```
 
-Admin deploys the ProcessorAddressesProvider and 
-
 ### Key Features
 
-- Users don't need to connect wallet
-- Receiving metadata by email
-- Faster buying process using Fiat
-- Payment processing and setlement in stablecoins
-- **Atomic swaps** - NFT and USDC transfer together or not at all
-- **No buyer crypto** - Pay with any credit card
-- **Instant settlement** - Seller receives USDC in ~15 seconds
-- **Upgradeable** - Processor can be upgraded via proxy
-- **Multi-stablecoin** - Supports USDC, USDT, DAI, etc.
+- **No wallet** - Users don't need to connect wallet
+- **Fast payment process** - Just pay with credit card, no buying crypto, no swaps
+- **Metadata by email** - Users can receive important data by email(ex. QR entrance code, date and time, seat row/number) 
+- **Atomic transaction** - NFT and USDC transfer together or not at all
+- **Instant settlement** - Seller receives USDC 
+- **Upgradeable** - Processor implementation can be upgraded 
+- **Multi-stablecoin** - Admin chooses stablecoin for payment processing 
 
 ## Properties
 
@@ -89,8 +84,6 @@ Configuration:
 3. Stablecoin address
 
 Configuration parameters will have the possibility to be updated after deployment. 
-
-Idealy, the deploymenta dn configuration setup will be done through a frontend to simplify the process.
 
 # Getting Started
 
@@ -166,3 +159,5 @@ Opposed to the more simple current approach used for this MVP, Function + Automa
 3. Liquidity Pool focused on providing funding to deployed Processors that need funding. Admins can connect their deployed Processor to the Liquidity Pool for funding.
 
 4. Addition of a fee/processed payment -> Use funds for development, optimization, scaling, marketing, maintainance
+
+5. Idealy, the deployment, configuration setup, implementation upgrades, updates and related operations will be done through a frontend to simplify the process.
