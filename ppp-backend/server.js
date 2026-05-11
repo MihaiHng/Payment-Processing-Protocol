@@ -12,7 +12,7 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const app = express();
 
 let processor;
-let currentTokenId = 1;
+let currentTokenId = 4;
 
 async function getNFTMetadata(tokenId) {
     const baseURI = process.env.NFT_BASE_URI;
@@ -87,8 +87,25 @@ async function sendTicketEmail(buyerEmail, tokenId, walletAddress, txHash, metad
         </div>
     `;
 
+    // console.log('📧 Calling Resend API...');
+
+    // const result = await resend.emails.send({
+    //     from: 'onboarding@resend.dev',
+    //     to: buyerEmail,
+    //     subject: `🎫 Your Ticket: ${metadata.name || `#${tokenId}`}`,
+    //     html: html
+    // });
+
+    // console.log('📧 Resend response:', JSON.stringify(result, null, 2));
+
+    // if (result.error) {
+    //     console.error('📧 Email error:', result.error);
+    // } else {
+    //     console.log(`📧 Ticket email sent to ${buyerEmail}`);
+    // }
+
     await resend.emails.send({
-        from: 'tickets@yourdomain.com',  // Must verify domain with Resend
+        from: 'onboarding@resend.dev',
         to: buyerEmail,
         subject: `🎫 Your Ticket: ${metadata.name || `#${tokenId}`}`,
         html: html
@@ -137,6 +154,9 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
 
+        const buyerEmail = session.customer_details?.email;  // ← Add this line!
+        console.log('📧 Buyer email:', buyerEmail);
+
         // DEBUG: Log the full custom_fields
         console.log('📋 Custom fields:', JSON.stringify(session.custom_fields, null, 2));
 
@@ -158,6 +178,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
         console.log(`\n✅ Payment received!`);
         console.log(`   Buyer: ${buyerWallet}`);
+        console.log(`   Email: ${buyerEmail}`);
         console.log(`   Token: #${currentTokenId}`);
         console.log(`   Amount: $${amountCents / 100}`);
 

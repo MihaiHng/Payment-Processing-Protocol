@@ -23,7 +23,7 @@ async function testEmail() {
     const tokenId = 1;
     const walletAddress = "0x7f44D3252A7a2C6FB0572e43C2A51e7204Bf7859";
     const txHash = "0xabc123fake456hash";
-    const buyerEmail = "mihai.hanga@gmail.com";  // ← Change to your email!
+    const buyerEmail = "mihai.hanga@gmail.com";
 
     const html = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
