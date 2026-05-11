@@ -113,7 +113,7 @@ forge install OpenZeppelin/openzeppelin-contracts-upgradeable
 ```
 cd ppp-backend
 npm init -y
-nom install npm install express stripe ethers dotenv readline-sync
+nom install npm install express stripe ethers dotenv readline-sync resend
 ```
 
 ## Quickstart
