@@ -131,24 +131,6 @@ Terminal 1: node server.js
 Terminal 2: stripe listen --forward-to localhost:3000/webhook
 ```
 
-## Testing 
-
-### Static Analysis 
-
-Slither Report:
-
-### Coverage Report
-
-
-
-### Test Suite
-
-- Unit Tests
-- Upgradeablity Tests
-- Fuzz Tests
-- Invariant Tests
-
-
 ## Future Improvements
 
 1. In future iterations which will likely increase in complexity, consider using Chainlink Runtine Environment (CRE), to simplify the workflow between the different components of the system, onchain reads, offchain reads, onchain writes etc.
