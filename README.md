@@ -133,13 +133,10 @@ Terminal 2: stripe listen --forward-to localhost:3000/webhook
 
 ## Future Improvements
 
-1. In future iterations which will likely increase in complexity, consider using Chainlink Runtine Environment (CRE), to simplify the workflow between the different components of the system, onchain reads, offchain reads, onchain writes etc.
-Opposed to the more simple current approach used for this MVP, Function + Automation
+1. After MVP, replace ProcessAddressesProvider with a Factory for multi-seller usage/onboarding
 
-2. After MVP, replace ProcessAddressesProvider with a Factory for multi-seller usage/onboarding
+2. Liquidity Pool focused on providing funding to deployed Processors that need funding. Admins can connect their deployed Processor to the Liquidity Pool for funding.
 
-3. Liquidity Pool focused on providing funding to deployed Processors that need funding. Admins can connect their deployed Processor to the Liquidity Pool for funding.
+3. Addition of a fee/processed payment -> Use funds for development, optimization, scaling, marketing, maintainance
 
-4. Addition of a fee/processed payment -> Use funds for development, optimization, scaling, marketing, maintainance
-
-5. Idealy, the deployment, configuration setup, implementation upgrades, updates and related operations will be done through a frontend to simplify the process.
+4. Idealy, the deployment, configuration setup, implementation upgrades, updates and related operations will be done through a frontend to simplify the process.
